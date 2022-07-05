@@ -9,4 +9,18 @@ public class UserMapper {
                 .name(user.getName())
                 .build();
     }
+
+    public static User toUser(UserDto userDto) {
+        return User.builder()
+                .id(userDto.getId())
+                .name(userDto.getName())
+                .build();
+    }
+
+    public static User toUser(UserCreateDto userCreateDto) {
+        return User.builder()
+                .name(userCreateDto.getName())
+                .email(userCreateDto.getEmail())
+                .build();
+    }
 }
