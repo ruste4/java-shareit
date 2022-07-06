@@ -10,7 +10,7 @@ import ru.practicum.shareit.user.User;
 @Builder
 @EqualsAndHashCode
 public class Item {
-
+    @EqualsAndHashCode.Exclude
     private Long id;
 
     private String name;

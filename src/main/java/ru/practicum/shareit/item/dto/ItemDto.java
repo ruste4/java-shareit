@@ -15,30 +15,6 @@ public class ItemDto {
 
     private String description;
 
-    private boolean available;
-
-    private User owner;
-
-    private ItemRequest request;
-
-    @Data
-    @Builder
-    public static class User {
-
-        private Long id;
-
-        private String name;
-
-    }
-
-    @Data
-    @Builder
-    public static class ItemRequest {
-
-        private Long id;
-
-        private User requester;
-
-    }
+    private Boolean available;
 
 }
