@@ -7,6 +7,7 @@ public class UserMapper {
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .email(user.getEmail())
                 .build();
     }
 
@@ -14,6 +15,7 @@ public class UserMapper {
         return User.builder()
                 .id(userDto.getId())
                 .name(userDto.getName())
+                .email(userDto.getEmail())
                 .build();
     }
 

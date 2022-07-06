@@ -77,7 +77,7 @@ class UserServiceTest {
         userService.addUser(user);
         updatedUser.setId(user.getId());
         updatedUser.setName(userName);
-        userService.updateUser(updatedUser);
+        userService.updateUser(updatedUser.getId(), updatedUser);
 
         assertEquals(userService.getUserById(user.getId()).getName(), userName);
     }
@@ -87,7 +87,27 @@ class UserServiceTest {
         User user = newUser.get();
         user.setId(-1L);
 
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(user));
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(user.getId(), user));
+    }
+
+    @Test
+    public void shouldBeUserAlreadyExistExceptionWhenEmailExist() {
+        User user1 = newUser.get();
+        User user2 = newUser.get();
+        String user1Email = "alreadyExist@email.ru";
+        user1.setEmail(user1Email);
+
+        userService.addUser(user1);
+        userService.addUser(user2);
+
+        User updatedUser2 = newUser.get();
+        updatedUser2.setId(user2.getId());
+        updatedUser2.setName(user2.getName());
+        updatedUser2.setEmail(user1Email);
+
+        assertThrows(UserAlreadyExistException.class, () -> {
+            userService.updateUser(updatedUser2.getId(), updatedUser2);
+        });
     }
 
     @Test
