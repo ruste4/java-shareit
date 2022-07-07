@@ -25,7 +25,7 @@ class UserServiceTest {
     private final Supplier<User> newUser = () -> User.builder()
             .id(userIdHolder.incrementAndGet())
             .name("User" + userIdHolder.get())
-            .email("user" + userIdHolder.get() + "@mail.ru")
+            .email("user" + userIdHolder.get() + "@userServiceTest.ru")
             .build();
     ;
 
