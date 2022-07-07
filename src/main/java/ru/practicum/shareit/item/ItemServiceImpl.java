@@ -25,6 +25,13 @@ public class ItemServiceImpl implements ItemService {
         this.userService = userService;
     }
 
+    /**
+     * Добавить предмет
+     * @param ownerId id владельца предмета
+     * @param item предмет
+     * @return предмет с сгенерированным для него номером id. Генерация id происходит в хранилище предметов
+     * @throws UserNotFoundException если пользователь из поля owner не найден в системе
+     */
     @Override
     public Item addItem(long ownerId, Item item) {
         User owner = checkAndGetItemOwner(ownerId, item.getName());
@@ -34,6 +41,14 @@ public class ItemServiceImpl implements ItemService {
         return itemStorage.add(item);
     }
 
+    /**
+     * Обновить предмет
+     * @param ownerId id владельца
+     * @param itemDto
+     * @return обновленный предмет из хранилища
+     * @throws UserNotFoundException если владелец не найден в системе
+     * @throws UserNotOwnerItemException если пользователь не является хозяином предмета
+     */
     @Override
     public Item updateItem(long ownerId, ItemDto itemDto) {
         checkAndGetItemOwner(ownerId, itemDto.getName());
@@ -62,18 +77,34 @@ public class ItemServiceImpl implements ItemService {
         return itemInStorage;
     }
 
+    /**
+     * Получить предмет по id
+     * @param id
+     * @return найденный предмет
+     */
     @Override
     public Item getItemById(long id) {
         log.info("Get item by id:{}", id);
         return itemStorage.findById(id);
     }
 
+    /**
+     * Получить все предметы определенного владельца
+     * @param ownerId id владельца
+     * @return список предметов, выбранных по id владельца
+     */
     @Override
     public List<Item> getAllByOwnerId(long ownerId) {
         log.info("Get all items by owner id:{}", ownerId);
         return itemStorage.getAllByUserId(ownerId);
     }
 
+    /**
+     * Найти предметы по имени и описанию
+     * @param txt текст по наличию котого будет вестись поиск
+     * @return список предметов, в которых нашлось совпадение по переданному тексту. Если ничего не нашлось, вернет
+     * пустой список
+     */
     @Override
     public List<Item> searchByNameAndDescription(String txt) {
         log.info("Search items by name and description with text \"{}\"", txt);
