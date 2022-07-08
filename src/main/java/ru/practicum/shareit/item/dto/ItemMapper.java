@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import org.springframework.boot.autoconfigure.condition.ConditionMessage;
 import ru.practicum.shareit.item.Item;
 
 public class ItemMapper {

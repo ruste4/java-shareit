@@ -48,17 +48,16 @@ public class UserErrorHandler {
 
         return errors;
     }
-}
 
+    private class ErrorResponse {
+        private final String error;
 
-class ErrorResponse {
-    private final String error;
+        public ErrorResponse(String error) {
+            this.error = error;
+        }
 
-    public ErrorResponse(String error) {
-        this.error = error;
-    }
-
-    public String getError() {
-        return error;
+        public String getError() {
+            return error;
+        }
     }
 }

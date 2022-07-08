@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.dto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import ru.practicum.shareit.booking.BookingStatus;
 
 import java.time.LocalDate;
 

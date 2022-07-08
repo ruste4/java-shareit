@@ -12,5 +12,6 @@ public interface ItemStorage {
     void deleteById(long id);
 
     List<Item> getAll();
+
     List<Item> getAllByUserId(long id);
 }

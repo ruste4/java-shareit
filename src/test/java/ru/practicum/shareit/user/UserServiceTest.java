@@ -27,7 +27,6 @@ class UserServiceTest {
             .name("User" + userIdHolder.get())
             .email("user" + userIdHolder.get() + "@userServiceTest.ru")
             .build();
-    ;
 
     @BeforeAll
     public static void beforeAllUserServiceTests() {
