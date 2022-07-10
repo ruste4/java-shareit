@@ -1,7 +1,30 @@
 package ru.practicum.shareit.requests.dto;
 
-/**
- * // TODO .
- */
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@EqualsAndHashCode
 public class ItemRequestDto {
+    private Long id;
+
+    private String description;
+
+    private User requester;
+
+    private LocalDateTime created;
+
+    @Data
+    @Builder
+    public static class User {
+
+        private Long id;
+
+        private String name;
+
+    }
 }
