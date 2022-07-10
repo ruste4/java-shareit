@@ -54,7 +54,9 @@ public class ItemServiceImpl implements ItemService {
         checkAndGetItemOwner(ownerId, itemDto.getName());
 
         if (!isOwnerOfItem(ownerId, itemDto.getId())) {
-            throw new UserNotOwnerItemException("The user with id:" + ownerId + " is not the owner of the " + itemDto);
+            throw new UserNotOwnerItemException(
+                    String.format("The user with id:%s is not the owner of the %s", ownerId, itemDto)
+            );
         }
 
         Item itemInStorage = itemStorage.findById(itemDto.getId());
@@ -132,7 +134,7 @@ public class ItemServiceImpl implements ItemService {
 
         if (owner == null) {
             throw new UserNotFoundException(
-                    "Owner with id:" + ownerId + " not found for item \"" + itemName + "\""
+                    String.format("Owner with id:%d not found for item '%s'", ownerId, itemName)
             );
         }
 

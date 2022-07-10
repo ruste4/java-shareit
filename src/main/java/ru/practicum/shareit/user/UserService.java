@@ -31,7 +31,7 @@ public class UserService {
         User user = userStorage.findById(id);
 
         if (user == null) {
-            throw new UserNotFoundException("User with id:" + id + " not found.");
+            throw new UserNotFoundException(String.format("User with id:%s not found.", id));
         }
 
         return user;
@@ -51,7 +51,7 @@ public class UserService {
     public User addUser(User user) {
         log.info("Add {}", user);
         if (userStorage.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserAlreadyExistException("User with email:" + user.getEmail() + " already exist.");
+            throw new UserAlreadyExistException(String.format("User with email:%s already exist.", user.getEmail()));
         }
 
         userStorage.addUser(user);
@@ -71,7 +71,7 @@ public class UserService {
         User user = userStorage.findById(id);
 
         if (user == null) {
-            throw new UserNotFoundException("User with id:" + id + " not found.");
+            throw new UserNotFoundException(String.format("User with id:%s not found.", id));
         }
 
         if (updatedUser.getName() != null) {
@@ -82,7 +82,9 @@ public class UserService {
             Optional<User> finedUserByEmail = userStorage.findByEmail(updatedUser.getEmail());
 
             if (finedUserByEmail.isPresent() && !finedUserByEmail.get().equals(user)) {
-                throw new UserAlreadyExistException("User with email:" + updatedUser.getEmail() + " already exist.");
+                throw new UserAlreadyExistException(
+                        String.format("User with email:%s already exist.", updatedUser.getEmail())
+                );
             }
 
             user.setEmail(updatedUser.getEmail());
@@ -102,7 +104,7 @@ public class UserService {
         User userInStorage = userStorage.findById(id);
 
         if (userInStorage == null) {
-            throw new UserNotFoundException("User with id:" + id + " not found.");
+            throw new UserNotFoundException(String.format("User with id:%s not found.", id));
         }
 
         userStorage.deleteById(id);
