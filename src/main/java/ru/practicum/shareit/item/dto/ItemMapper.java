@@ -13,34 +13,15 @@ public class ItemMapper {
     }
 
     public static Item toItem(ItemDto itemDto) {
-        Item.ItemBuilder itemBuilder = Item.builder();
-
-        if (itemDto.getId() != null) {
-            itemBuilder.id(itemDto.getId());
-        }
-
-        if (itemDto.getName() != null) {
-            itemBuilder.name(itemDto.getName());
-        }
-
-        if (itemDto.getDescription() != null) {
-            itemBuilder.description(itemDto.getDescription());
-        }
-
-        if (itemDto.getAvailable() == null) {
-            itemBuilder.available(false);
-        } else {
-            itemBuilder.available(itemDto.getAvailable());
-        }
-
-        return itemBuilder.build();
+        return new Item(itemDto.getId(),
+                itemDto.getName(),
+                itemDto.getDescription(),
+                itemDto.getAvailable());
     }
 
     public static Item toItem(ItemCreateDto itemCreateDto) {
-        return Item.builder()
-                .name(itemCreateDto.getName())
-                .description(itemCreateDto.getDescription())
-                .available(itemCreateDto.getAvailable())
-                .build();
+        return new Item(itemCreateDto.getName(),
+                itemCreateDto.getDescription(),
+                itemCreateDto.getAvailable());
     }
 }

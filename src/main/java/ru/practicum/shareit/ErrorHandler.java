@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
@@ -8,29 +8,40 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@RestControllerAdvice(basePackageClasses = UserController.class)
-public class UserErrorHandler {
+@RestControllerAdvice
+public class ErrorHandler {
     @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse constraintViolationExceptionHandle(ConstraintViolationException e) {
-        log.warn(e.getMessage());
         if (e.getConstraintName().equals("uq_user_email")) {
-            return new ErrorResponse("email already exist");
+            String message = "Email already exist";
+            log.warn(message);
+
+            return new ErrorResponse(message);
         }
+
+        log.warn(e.getMessage());
 
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({UserNotFoundException.class})
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            UserNotOwnerItemException.class,
+            ItemNotFoundException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(RuntimeException e) {
         log.warn(e.getMessage());
+
         return new ErrorResponse(e.getMessage());
     }
 
