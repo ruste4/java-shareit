@@ -36,11 +36,9 @@ public class Booking {
     @Column(name = "status")
     private BookingStatus status;
 
-    public Booking(Item item, LocalDateTime start, LocalDateTime end, User booker, BookingStatus status) {
+    public Booking(LocalDateTime start, LocalDateTime end, BookingStatus status) {
         this.start = start;
         this.end = end;
-        this.item = item;
-        this.booker = booker;
         this.status = status;
     }
 

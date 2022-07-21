@@ -23,11 +23,7 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") long userId,
             @Valid @RequestBody BookingCreateDto bookingCreateDto
     ) {
-        Booking booking = bookingMapper.toBooking(bookingCreateDto, userId);
-
-        return bookingMapper.toBookingDto(
-                bookingService.addBooking(booking)
-        );
+        return BookingMapper.toBookingDto(bookingService.addBooking(bookingCreateDto, userId));
     }
 
     @GetMapping
@@ -44,7 +40,7 @@ public class BookingController {
 
         }
 
-        return bookings.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+        return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
@@ -60,7 +56,7 @@ public class BookingController {
             bookings = bookingService.getAllByItemOwnerIdWithStatus(itemOwnerId, status);
         }
 
-        return bookings.stream().map(bookingMapper::toBookingDto).collect(Collectors.toList());
+        return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -68,7 +64,7 @@ public class BookingController {
             @PathVariable long id,
             @RequestHeader("X-Sharer-User-Id") long userId
     ) {
-        return bookingMapper.toBookingDto(
+        return BookingMapper.toBookingDto(
                 bookingService.getBookingById(id, userId)
         );
     }
@@ -79,7 +75,7 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestParam boolean approved
     ) {
-        return bookingMapper.toBookingDto(
+        return BookingMapper.toBookingDto(
                 bookingService.approveBooking(id, userId, approved)
         );
     }

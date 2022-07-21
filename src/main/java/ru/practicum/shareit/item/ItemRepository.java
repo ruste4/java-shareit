@@ -10,5 +10,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByOwnerId(Long ownerId);
 
     Streamable<Item> findByNameContainingIgnoreCase(String name);
+
     Streamable<Item> findByDescriptionContainingIgnoreCase(String description);
 }

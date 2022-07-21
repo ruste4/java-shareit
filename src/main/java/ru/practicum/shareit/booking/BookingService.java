@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingCreateDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.exceptions.*;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.exceptions.ItemIsNotAvailableException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.User;
@@ -23,6 +27,8 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserService userService;
 
+    private final ItemService itemService;
+
     /**
      * Добавить бронирование
      *
@@ -30,7 +36,15 @@ public class BookingService {
      * @return бронирование с генерированным id
      * @throws UserNotFoundException если пользователь с переданным id не зарегестрирован в системе
      */
-    public Booking addBooking(Booking booking) {
+    public Booking addBooking(BookingCreateDto bookingCreateDto, long userId) {
+
+        User booker = userService.getUserById(userId);
+        Item item = itemService.getItemById(bookingCreateDto.getItemId());
+
+        Booking booking = BookingMapper.toBooking(bookingCreateDto);
+        booking.setBooker(booker);
+        booking.setItem(item);
+
         log.info("Add booking {}", booking);
 
         bookerIsNotOwnerItem.check(booking);
@@ -38,6 +52,7 @@ public class BookingService {
         bookingDatesIsCorrect.check(booking);
 
         return bookingRepository.save(booking);
+
     }
 
     private final BookingChecker<Booking> bookerIsNotOwnerItem = (booking) -> {
