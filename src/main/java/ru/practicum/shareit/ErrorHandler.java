@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exceptions.*;
+import ru.practicum.shareit.item.exceptions.ItemIsNotAvailableException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -36,7 +38,10 @@ public class ErrorHandler {
     @ExceptionHandler({
             UserNotFoundException.class,
             UserNotOwnerItemException.class,
-            ItemNotFoundException.class
+            ItemNotFoundException.class,
+            BookingNotFound.class,
+            BookingAccessBlocked.class,
+            BookerIsNotOwnerItemException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(RuntimeException e) {
@@ -63,6 +68,17 @@ public class ErrorHandler {
         return errors;
     }
 
+    @ExceptionHandler({
+            ItemIsNotAvailableException.class,
+            BookingIncorrectStartEndDatesException.class,
+            BookingAlreadyApprovedException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse exceptionHandlerByBadeRequest(RuntimeException e) {
+        log.warn(e.getMessage());
+
+        return new ErrorResponse(e.getMessage());
+    }
 
     private class ErrorResponse {
         private final String error;

@@ -1,28 +1,59 @@
 package ru.practicum.shareit.booking;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
-@Data
-@Builder
-@EqualsAndHashCode
+@Entity
+@Table(name = "bookings")
+@Getter @Setter @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Booking {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate start;
+    @Column(name = "start_date_time")
+    private LocalDateTime start;
 
-    private LocalDate end;
+    @Column(name = "end_date_time")
+    private LocalDateTime end;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    @ToString.Exclude
     private Item item;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booker_id")
+    @ToString.Exclude
     private User booker;
 
+    @Column(name = "status")
     private BookingStatus status;
+
+    public Booking(Item item, LocalDateTime start, LocalDateTime end, User booker, BookingStatus status) {
+        this.start = start;
+        this.end = end;
+        this.item = item;
+        this.booker = booker;
+        this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Booking)) return false;
+        return id != null && id.equals(((Booking) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
 }

@@ -2398,7 +2398,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(1, 'd');\r",
-									"var end = moment().add(10, 's')\r",
+									"var end = moment().add(2, 'd');\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
@@ -2443,6 +2443,71 @@
 					"response": []
 				},
 				{
+					"name": "item update set available",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test update available\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(2);",
+									"    pm.expect(jsonData.name).to.eql('Отвертка');",
+									"    pm.expect(jsonData.description).to.eql('Аккумуляторная отвертка');",
+									"    pm.expect(jsonData.available).to.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"available\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/items/:itemId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"items",
+								":itemId"
+							],
+							"variable": [
+								{
+									"key": "itemId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Booking create failed by wrong userId",
 					"event": [
 						{
@@ -2464,7 +2529,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(1, 'd');\r",
-									"var end = moment().add(10, 's')\r",
+									"var end = moment().add(2, 'd');\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
@@ -2530,7 +2595,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(1, 'd');\r",
-									"var end = moment().add(10, 's')\r",
+									"var end = moment().add(2, 'd');\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
@@ -2707,71 +2772,6 @@
 					"response": []
 				},
 				{
-					"name": "item update set available",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-									"});",
-									"pm.test(\"Test update available\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id).to.eql(2);",
-									"    pm.expect(jsonData.name).to.eql('Отвертка');",
-									"    pm.expect(jsonData.description).to.eql('Аккумуляторная отвертка');",
-									"    pm.expect(jsonData.available).to.true;",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "X-Sharer-User-Id",
-								"value": "4",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"available\": true\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/items/:itemId",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"items",
-								":itemId"
-							],
-							"variable": [
-								{
-									"key": "itemId",
-									"value": "2"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Booking create from user1 to item2",
 					"event": [
 						{
@@ -2796,7 +2796,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(1, 'd');\r",
-									"var end = moment().add(10, 's')\r",
+									"var end = moment().add(2, 'd');\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
@@ -3233,7 +3233,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"Status code is 500\", function () {",
-									"    pm.expect(pm.response.code).to.be.oneOf([500]);",
+									"    pm.expect(pm.response.code).to.be.oneOf([500,400]);",
 									"});",
 									""
 								],
@@ -3468,7 +3468,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(2, 'd');\r",
-									"var end = moment().add(10, 's')\r",
+									"var end = moment().add(3, 'd');\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
@@ -3537,7 +3537,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(1, 'd');\r",
-									"var end = moment().add(10, 's')\r",
+									"var end = moment().add(1, 'd').add(1, 'h');\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
@@ -3644,7 +3644,7 @@
 					"response": []
 				},
 				{
-					"name": "Item 2 get with bookings",
+					"name": "Item 2 get by user4 with  bookings",
 					"event": [
 						{
 							"listen": "test",
@@ -3653,7 +3653,7 @@
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 									"});",
-									"pm.test(\"Test get item\", function () {",
+									"pm.test(\"Item 2 get by user4 with  bookings\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.id).to.eql(2);",
 									"    pm.expect(jsonData.name).to.eql('Отвертка');",
@@ -3677,6 +3677,63 @@
 							{
 								"key": "X-Sharer-User-Id",
 								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/items/:itemId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"items",
+								":itemId"
+							],
+							"variable": [
+								{
+									"key": "itemId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Item 2 get by user1 without  bookings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Item 2 get by user1 without  bookings\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(2);",
+									"    pm.expect(jsonData.name).to.eql('Отвертка');",
+									"    pm.expect(jsonData.description).to.eql('Аккумуляторная отвертка');",
+									"    pm.expect(jsonData.available).to.true;",
+									"    pm.expect(jsonData.lastBooking).null;",
+									"    pm.expect(jsonData.nextBooking).null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
 								"type": "text"
 							},
 							{
@@ -3779,8 +3836,6 @@
 									"    pm.expect(jsonData.id).to.eql(1);",
 									"    pm.expect(jsonData.available).to.true;",
 									"    pm.expect(jsonData.comments.length).to.eql(0);",
-									"    pm.expect(jsonData.lastBooking).null;",
-									"    pm.expect(jsonData.nextBooking).null;",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3835,8 +3890,6 @@
 									"    pm.expect(jsonData.id).to.eql(2);",
 									"    pm.expect(jsonData.available).to.true;",
 									"    pm.expect(jsonData.comments.length).to.eql(0);",
-									"    pm.expect(jsonData.lastBooking).not.null;",
-									"    pm.expect(jsonData.nextBooking).not.null;",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4071,7 +4124,7 @@
 					"response": []
 				},
 				{
-					"name": "Item 2 get with comments",
+					"name": "Item 2 get by user1 with comments",
 					"event": [
 						{
 							"listen": "test",
@@ -4080,7 +4133,68 @@
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 									"});",
-									"pm.test(\"Test get item 2 without comments\", function () {",
+									"pm.test(\"Test get item 2 by user1  with comments\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(2);",
+									"    pm.expect(jsonData.available).to.true;",
+									"    pm.expect(jsonData.lastBooking).null;",
+									"    pm.expect(jsonData.nextBooking).null;",
+									"    pm.expect(jsonData.comments.length).to.eql(1);",
+									"    var comment = jsonData.comments[0];",
+									"    pm.expect(comment.id).to.eql(1);",
+									"    pm.expect(comment.text).to.eql(\"Add comment from user1\");",
+									"    pm.expect(comment.authorName).to.eql(\"updateName\");",
+									"    pm.expect(comment.created).not.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/items/:itemId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"items",
+								":itemId"
+							],
+							"variable": [
+								{
+									"key": "itemId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Item 2 get  by user4  with comments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get item2 by user4  with comments\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.id).to.eql(2);",
 									"    pm.expect(jsonData.available).to.true;",
@@ -4103,7 +4217,7 @@
 						"header": [
 							{
 								"key": "X-Sharer-User-Id",
-								"value": "1",
+								"value": "4",
 								"type": "text"
 							},
 							{
@@ -4156,7 +4270,7 @@
 									"var moment = require('moment');\r",
 									"\r",
 									"var start = moment().add(10, 'd');\r",
-									"var end = moment().add(1, 'd')\r",
+									"var end = moment().add(11, 'd')\r",
 									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
 									""
