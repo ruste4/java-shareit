@@ -23,5 +23,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("status") BookingStatus status
     );
 
-//    List<Booking> findByBookerItem(Item item);
+    List<Booking> findAllBookingByItem(Item item);
 }

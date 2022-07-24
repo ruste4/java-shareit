@@ -4,15 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.ItemWithBookingDatesDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -22,6 +27,8 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserService userService;
+
+    private final BookingRepository bookingRepository;
 
     /**
      * Добавить предмет
@@ -78,18 +85,51 @@ public class ItemService {
         return itemInStorage;
     }
 
+
+    public ItemWithBookingDatesDto getItemById(long itemId, long userId) {
+        log.info("Get item by id:{}", itemId);
+        Item item = getItemById(itemId);
+
+        if (isOwnerOfItem(userId, itemId)) {
+            return addToItemLastAndNextBooking(item);
+        }
+
+        return ItemMapper.toItemWithBookingDatesDto(getItemById(itemId));
+    }
+
+
     /**
      * Получить предмет по id
      *
-     * @param id
      * @return найденный предмет
      */
-    public Item getItemById(long id) {
-        log.info("Get item by id:{}", id);
+    public Item getItemById(long itemId) {
+        log.info("Get item by id:{}", itemId);
 
-        return itemRepository.findById(id).orElseThrow(
-                () -> new ItemNotFoundException(String.format("Item with id:%s not found.", id))
+        return itemRepository.findById(itemId).orElseThrow(
+                () -> new ItemNotFoundException(String.format("Item with id:%s not found.", itemId))
         );
+    }
+
+    private ItemWithBookingDatesDto addToItemLastAndNextBooking(Item item) {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Booking> bookings = bookingRepository.findAllBookingByItem(item);
+
+        Optional<Booking> lastBooking = bookings.stream()
+                .filter(b -> b.getEnd().isBefore(now))
+                .max(Comparator.comparing(Booking::getEnd));
+
+        Optional<Booking> nextBooking = bookings.stream()
+                .filter(b -> b.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart));
+
+        ItemWithBookingDatesDto itemWithBookingDto = ItemMapper.toItemWithBookingDatesDto(item);
+        lastBooking.ifPresent(itemWithBookingDto::setLastBooking);
+        nextBooking.ifPresent(itemWithBookingDto::setNextBooking);
+
+        return itemWithBookingDto;
     }
 
     /**
@@ -98,9 +138,12 @@ public class ItemService {
      * @param ownerId id владельца
      * @return список предметов, выбранных по id владельца
      */
-    public List<Item> getAllByOwnerId(long ownerId) {
+    public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId) {
         log.info("Get all items by owner id:{}", ownerId);
-        return itemRepository.findByOwnerId(ownerId);
+
+        return itemRepository.findByOwnerId(ownerId).stream()
+                .map(this::addToItemLastAndNextBooking)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -151,7 +194,7 @@ public class ItemService {
      */
     private boolean isOwnerOfItem(long userId, long itemId) {
         User owner = userService.getUserById(userId);
-        Item item = itemRepository.findById(itemId).get();
+        Item item = getItemById(itemId);
 
         return item.getOwner().equals(owner);
     }

@@ -32,7 +32,6 @@ public class BookingService {
     /**
      * Добавить бронирование
      *
-     * @param booking DTO объект для создания бронирования
      * @return бронирование с генерированным id
      * @throws UserNotFoundException если пользователь с переданным id не зарегестрирован в системе
      */
@@ -166,5 +165,9 @@ public class BookingService {
         User itemOwner = userService.getUserById(itemOwnerId);
 
         return bookingRepository.findAllBookingsByItemOwner(itemOwner);
+    }
+
+    public List<Booking> getBookingByItem(Item item) {
+        return bookingRepository.findAllBookingByItem(item);
     }
 }
