@@ -1,10 +1,13 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.practicum.shareit.booking.Booking;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,6 +25,22 @@ public class ItemWithBookingDatesDto {
     private Booking lastBooking;
 
     private Booking nextBooking;
+
+    private List<Comment> comments;
+
+    @Data
+    @Builder
+    public static class Comment {
+
+        private Long id;
+
+        private String text;
+
+        private String authorName;
+
+        private LocalDateTime created;
+
+    }
 
     public void setLastBooking(ru.practicum.shareit.booking.Booking lastBooking) {
         this.lastBooking = new Booking(lastBooking.getId(), lastBooking.getBooker().getId());

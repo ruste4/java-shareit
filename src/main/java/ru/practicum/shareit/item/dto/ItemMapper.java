@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import ru.practicum.shareit.booking.dto.ItemWithBookingDatesDto;
 import ru.practicum.shareit.item.Item;
 
 public class ItemMapper {

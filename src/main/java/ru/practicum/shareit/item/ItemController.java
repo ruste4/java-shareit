@@ -1,12 +1,8 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.ItemWithBookingDatesDto;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -59,5 +55,14 @@ public class ItemController {
         return itemService.searchByNameAndDescription(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(
+            @Valid @RequestBody CommentCreateDto commentCreateDto,
+            @PathVariable long itemId,
+            @RequestHeader("X-Sharer-User-Id") long userId
+    ) {
+        return CommentMapper.toCommentDto(itemService.addComment(commentCreateDto, itemId, userId));
     }
 }

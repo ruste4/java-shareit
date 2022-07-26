@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.exceptions.*;
 import ru.practicum.shareit.item.exceptions.ItemIsNotAvailableException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
@@ -71,7 +72,8 @@ public class ErrorHandler {
     @ExceptionHandler({
             ItemIsNotAvailableException.class,
             BookingIncorrectStartEndDatesException.class,
-            BookingAlreadyApprovedException.class
+            BookingAlreadyApprovedException.class,
+            UserIsNotBookedItemException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse exceptionHandlerByBadeRequest(RuntimeException e) {

@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.dto.ItemWithBookingDatesDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.exceptions.BookingNotFound;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
@@ -27,6 +28,8 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserService userService;
+
+    private final CommentRepository commentRepository;
 
     private final BookingRepository bookingRepository;
 
@@ -87,14 +90,30 @@ public class ItemService {
 
 
     public ItemWithBookingDatesDto getItemById(long itemId, long userId) {
+
         log.info("Get item by id:{}", itemId);
+
         Item item = getItemById(itemId);
+        ItemWithBookingDatesDto itemDto = ItemMapper.toItemWithBookingDatesDto(item);
 
         if (isOwnerOfItem(userId, itemId)) {
-            return addToItemLastAndNextBooking(item);
+            itemDto = addToItemLastAndNextBooking(item);
         }
 
-        return ItemMapper.toItemWithBookingDatesDto(getItemById(itemId));
+        List<Comment> comments = getAllCommentsByItem(item);
+        itemDto.setComments(
+                comments.stream()
+                        .map(c -> ItemWithBookingDatesDto.Comment.builder()
+                                .id(c.getId())
+                                .text(c.getText())
+                                .authorName(c.getAuthor().getName())
+                                .created(c.getCreated())
+                                .build())
+                        .collect(Collectors.toList())
+        );
+
+        return itemDto;
+
     }
 
 
@@ -115,7 +134,7 @@ public class ItemService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<Booking> bookings = bookingRepository.findAllBookingByItem(item);
+        List<Booking> bookings = bookingRepository.findAllBookingByItemId(item.getId());
 
         Optional<Booking> lastBooking = bookings.stream()
                 .filter(b -> b.getEnd().isBefore(now))
@@ -125,11 +144,12 @@ public class ItemService {
                 .filter(b -> b.getStart().isAfter(now))
                 .min(Comparator.comparing(Booking::getStart));
 
-        ItemWithBookingDatesDto itemWithBookingDto = ItemMapper.toItemWithBookingDatesDto(item);
-        lastBooking.ifPresent(itemWithBookingDto::setLastBooking);
-        nextBooking.ifPresent(itemWithBookingDto::setNextBooking);
+        ItemWithBookingDatesDto itemWithBookingDatesDto = ItemMapper.toItemWithBookingDatesDto(item);
 
-        return itemWithBookingDto;
+        lastBooking.ifPresent(itemWithBookingDatesDto::setLastBooking);
+        nextBooking.ifPresent(itemWithBookingDatesDto::setNextBooking);
+
+        return itemWithBookingDatesDto;
     }
 
     /**
@@ -198,4 +218,39 @@ public class ItemService {
 
         return item.getOwner().equals(owner);
     }
+
+    public Comment addComment(CommentCreateDto commentCreateDto, long itemId, long userId) {
+        User author = userService.getUserById(userId);
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ItemNotFoundException(String.format("Item with id:%s not found.", itemId))
+        );
+        boolean authorIsBookedItem = bookingRepository.findAllBookingByItem(item).stream()
+                .anyMatch(
+                        b -> b.getBooker().getId().equals(userId)
+                                && !b.getStatus().equals(BookingStatus.REJECTED)
+                                && item.isAvailable()
+                                && b.getEnd().isBefore(LocalDateTime.now())
+                );
+
+        if (!authorIsBookedItem) {
+            throw new UserIsNotBookedItemException(
+                    String.format("User with id:%s did not book the item with id:%s", userId, itemId)
+            );
+        }
+
+        Comment comment = Comment.builder()
+                .text(commentCreateDto.getText())
+                .author(author)
+                .item(item)
+                .created(LocalDateTime.now())
+                .build();
+
+        return commentRepository.save(comment);
+    }
+
+    public List<Comment> getAllCommentsByItem(Item item) {
+        return commentRepository.findAllCommentByItem(item);
+    }
+
+
 }
