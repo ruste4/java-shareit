@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
-import ru.practicum.shareit.booking.exceptions.BookingNotFound;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
@@ -53,7 +52,7 @@ public class ItemService {
      * Обновить предмет
      *
      * @param ownerId id владельца
-     * @param itemDto
+     * @param itemDto экземпляр класса ItemDto, который содержит в себе информацию для обновления
      * @return обновленный предмет из хранилища
      * @throws UserNotFoundException     если владелец не найден в системе
      * @throws UserNotOwnerItemException если пользователь не является хозяином предмета
@@ -88,9 +87,17 @@ public class ItemService {
         return itemInStorage;
     }
 
-
+    /**
+     * Получить предмет
+     *
+     * @param itemId идентификатор предмета
+     * @param userId идентификатор пользователя, который хочет получить информацию
+     * @return экземпляр класса ItemWithBookingDatesDto. Экземпляр в себе содержил помимо информации о предмете еще и
+     * информацию о предыдущем и следующем бронировани, если пользователь является владельцем вещи. Так же экземпляр
+     * содержит в себе комментарии арендаторов
+     * @throws ItemNotFoundException если предмет не найден
+     */
     public ItemWithBookingDatesDto getItemById(long itemId, long userId) {
-
         log.info("Get item by id:{}", itemId);
 
         Item item = getItemById(itemId);
@@ -113,25 +120,30 @@ public class ItemService {
         );
 
         return itemDto;
-
     }
 
 
     /**
      * Получить предмет по id
      *
+     * @param itemId идентификатор предмета
      * @return найденный предмет
+     * @throws ItemNotFoundException если предмет не найден
      */
     public Item getItemById(long itemId) {
-        log.info("Get item by id:{}", itemId);
-
         return itemRepository.findById(itemId).orElseThrow(
                 () -> new ItemNotFoundException(String.format("Item with id:%s not found.", itemId))
         );
     }
 
+    /**
+     * Добавить предыдущий и следующий ближайшие брони.
+     *
+     * @param item предмет к которому нужно добавить информацию о бронировании
+     * @return экземпляр класса ItemWithBookingDatesDto. Содержит в себе информацию из предмета, переданного в параметре
+     * и дополнительно информацию о предыдущем и следующем бронях предмета
+     */
     private ItemWithBookingDatesDto addToItemLastAndNextBooking(Item item) {
-
         LocalDateTime now = LocalDateTime.now();
 
         List<Booking> bookings = bookingRepository.findAllBookingByItemId(item.getId());
@@ -156,7 +168,7 @@ public class ItemService {
      * Получить все предметы определенного владельца
      *
      * @param ownerId id владельца
-     * @return список предметов, выбранных по id владельца
+     * @return список предметов, выбранных по id владельца, с информацией и ближайших по времени бронях
      */
     public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId) {
         log.info("Get all items by owner id:{}", ownerId);
@@ -219,6 +231,17 @@ public class ItemService {
         return item.getOwner().equals(owner);
     }
 
+    /**
+     * Добавить комментарии
+     *
+     * @param commentCreateDto экземпляр класса CommentCreateDto с текстом комментария
+     * @param itemId           идентификатор предмета, к которому добавляют комментарий
+     * @param userId           идентификатор пользователя, который хочет добавить комментарий
+     * @return сохраненный комментарий с генерированным id и полем created
+     * @throws UserNotFoundException        если пользователь по параметру userId не найден
+     * @throws ItemNotFoundException        если предмет по параметру itemId не найден
+     * @throws UserIsNotBookedItemException если пользователь не арендовал ранее предмет
+     */
     public Comment addComment(CommentCreateDto commentCreateDto, long itemId, long userId) {
         User author = userService.getUserById(userId);
         Item item = itemRepository.findById(itemId).orElseThrow(
@@ -248,6 +271,12 @@ public class ItemService {
         return commentRepository.save(comment);
     }
 
+    /**
+     * Получить все комментарии по предмету
+     *
+     * @param item предмет по которому происходит поиск комментария
+     * @return список комментариев
+     */
     public List<Comment> getAllCommentsByItem(Item item) {
         return commentRepository.findAllCommentByItem(item);
     }
