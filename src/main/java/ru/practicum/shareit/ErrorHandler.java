@@ -42,7 +42,7 @@ public class ErrorHandler {
             ItemNotFoundException.class,
             BookingNotFound.class,
             BookingAccessBlocked.class,
-            BookerIsNotOwnerItemException.class
+            BookerIsOwnerItemException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(RuntimeException e) {

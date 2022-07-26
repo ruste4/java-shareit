@@ -32,11 +32,20 @@ public class BookingService {
     /**
      * Добавить бронирование
      *
+     * @param userId           идентификатор пользователя, который хочеть добавить бронь
+     * @param bookingCreateDto экземпляр класса BookingCreateDto котором передаются данные для регистрации брони
      * @return бронирование с генерированным id
-     * @throws UserNotFoundException если пользователь с переданным id не зарегестрирован в системе
+     * @throws UserNotFoundException                  если пользователь с переданным id не зарегестрирован в системе
+     * @throws BookerIsOwnerItemException             если пользователь является владельцем вещи. Исключение
+     *                                                выбрасывается из лямбда-выражения BookingChecker<Booking>
+     *                                                bookerIsNotOwnerItem
+     * @throws ItemIsNotAvailableException            если вещь не доступна для бронирования. Исключение выбрасывается
+     *                                                из лямбда-выражения BookingChecker<Booking> bookingIsAvailable
+     * @throws BookingIncorrectStartEndDatesException если даты старта и конца бронирования в прошлом времени или дата
+     *                                                старта после конца бронирования. Исключение выбрасывается из
+     *                                                лямбда-выражения BookingChecker<Booking> bookingDatesIsCorrect
      */
     public Booking addBooking(BookingCreateDto bookingCreateDto, long userId) {
-
         User booker = userService.getUserById(userId);
         Item item = itemService.getItemById(bookingCreateDto.getItemId());
 
@@ -51,13 +60,12 @@ public class BookingService {
         bookingDatesIsCorrect.check(booking);
 
         return bookingRepository.save(booking);
-
     }
 
     private final BookingChecker<Booking> bookerIsNotOwnerItem = (booking) -> {
         boolean bookerIsOwnerItem = booking.getBooker().equals(booking.getItem().getOwner());
         if (bookerIsOwnerItem) {
-            throw new BookerIsNotOwnerItemException(
+            throw new BookerIsOwnerItemException(
                     String.format(
                             "Booker with id:%s is owner item with id:%s.",
                             booking.getBooker().getId(),
@@ -88,8 +96,12 @@ public class BookingService {
      * Получить бронирование по id
      *
      * @param bookingId id бронирования
-     * @return бронирование
-     * @throws BookingNotFound если бронирование не найдено по переданному id
+     * @param userId    идентификатор пользователя, который хочет получить информацию о бронировании
+     * @return экземпляр класса Booking
+     * @throws BookingNotFound      если бронирование не найдено по переданному id
+     * @throws BookingAccessBlocked если пользователь не является арендатором либо арендодателем вещи. Исключение
+     *                              выбрасывается из лямбда-выражения
+     *                              BookingAccessChecker<Booking, User> accessIsAllowedToBooking
      */
     public Booking getBookingById(long bookingId, long userId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -102,7 +114,7 @@ public class BookingService {
         return booking;
     }
 
-    private final BookingAccessChecker<Booking, User> accessIsAllowedToBooking= (booking, user) -> {
+    private final BookingAccessChecker<Booking, User> accessIsAllowedToBooking = (booking, user) -> {
         if (!booking.getBooker().equals(user) && !booking.getItem().getOwner().equals(user)) {
             throw new BookingAccessBlocked(String.format("Booking with id:%s access blocked.", booking.getId()));
         }
@@ -115,8 +127,12 @@ public class BookingService {
      * @param userId     id владельца
      * @param isApproved true если владелец подтвердил / false если владелец не подтвердил
      * @return бронирование с обновленным полем approved
-     * @throws BookingNotFound           если бронирование не был найден по переданному id
-     * @throws UserNotOwnerItemException если подтвердить бронирование пытается не владелец вещи
+     * @throws BookingNotFound                 если бронирование не был найден по переданному id
+     * @throws UserNotFoundException           если пользователь по параметру userId не найден
+     * @throws UserNotOwnerItemException       если подтвердить бронирование пытается не владелец вещи. Исключение
+     *                                         выбрасывается из лямбда-выражения
+     *                                         BookingAccessChecker<Booking, User> userIsOwnerBooking
+     * @throws BookingAlreadyApprovedException если бронь уже подтверждена
      */
     public Booking approveBooking(long bookingId, long userId, boolean isApproved) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -147,27 +163,49 @@ public class BookingService {
         }
     };
 
+    /**
+     * Получить все брони по арендатору и статусу
+     *
+     * @param bookerId идентификатор арендатора
+     * @param status   статус брони
+     * @return список броней выбранных по bookerId и status
+     */
     public List<Booking> getAllByBookerWithStatus(long bookerId, String status) {
         return bookingRepository.findAllByBookerIdAndStatusOrderByIdDesc(bookerId, BookingStatus.valueOf(status));
     }
 
+    /**
+     * Получить все брони по арендатору
+     *
+     * @param bookerId идентификатор арендатора
+     * @return список броней выбранных по bookerId
+     */
     public List<Booking> getAllByBooker(long bookerId) {
         return bookingRepository.findAllByBookerIdOrderByIdDesc(bookerId);
     }
 
+    /**
+     * Получить все брони по арендодателю и статусу
+     *
+     * @param itemOwnerId идентификатор арендодателя
+     * @param status      статус брони
+     * @return список броней, выбранных по itemOwnerId и status
+     */
     public List<Booking> getAllByItemOwnerIdWithStatus(long itemOwnerId, String status) {
         User itemOwner = userService.getUserById(itemOwnerId);
 
         return bookingRepository.findAllBookingsByItemOwnerWithStatus(itemOwner, BookingStatus.valueOf(status));
     }
 
+    /**
+     * Получить все брони по арендодателю
+     *
+     * @param itemOwnerId идентификатор арендодателя
+     * @return список броней, выбранных по itemOwnerId
+     */
     public List<Booking> getAllByItemOwnerId(long itemOwnerId) {
         User itemOwner = userService.getUserById(itemOwnerId);
 
         return bookingRepository.findAllBookingsByItemOwner(itemOwner);
-    }
-
-    public List<Booking> getBookingByItem(Item item) {
-        return bookingRepository.findAllBookingByItem(item);
     }
 }

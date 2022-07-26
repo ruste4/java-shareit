@@ -9,7 +9,7 @@ public enum BookingStatus {
     REJECTED("REJECTED"),
     CANCELED("CANCELED");
 
-    private String val;
+    private final String val;
 
     BookingStatus(String val) {
         this.val = val;
