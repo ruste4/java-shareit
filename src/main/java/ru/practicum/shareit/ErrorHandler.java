@@ -82,7 +82,7 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    private class ErrorResponse {
+    private static class ErrorResponse {
         private final String error;
 
         public ErrorResponse(String error) {

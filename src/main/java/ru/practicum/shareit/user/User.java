@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 
 @Entity
 @Table(name = "users", schema = "public")
@@ -18,6 +19,8 @@ public class User {
 
     private String name;
 
+    @Email
+    @Column(name = "email", unique = true)
     private String email;
 
     @Override
