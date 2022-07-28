@@ -5,6 +5,7 @@ import ru.practicum.shareit.requests.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "items")
@@ -19,8 +20,10 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String name;
 
+    @NotBlank
     private String description;
 
     private boolean available;

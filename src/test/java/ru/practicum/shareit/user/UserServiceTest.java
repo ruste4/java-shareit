@@ -1,17 +1,15 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import ru.practicum.shareit.Generators;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import javax.validation.ConstraintViolationException;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,27 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserServiceTest {
 
-    private static AtomicLong userNumberHolder;
-
     @Autowired
     private UserService userService;
 
-    @BeforeAll
-    public static void beforeAllUserServiceTests() {
-        userNumberHolder = new AtomicLong();
-    }
-
-    private final Supplier<User> newUser = () -> {
-        User newUser = new User();
-        newUser.setName("User" + userNumberHolder.incrementAndGet());
-        newUser.setEmail(String.format("user%s@mail.ru", userNumberHolder.get()));
-
-        return newUser;
-    };
-
     @Test
     public void createUserTest() {
-        User user = newUser.get();
+        User user = Generators.USER_SUPPLIER.get();
 
         assertAll(
                 () -> assertDoesNotThrow(() -> userService.addUser(user), "User create"),
@@ -74,8 +57,8 @@ class UserServiceTest {
 
     @Test
     public void userUpdateTest() {
-        User user1 = newUser.get();
-        User user2 = newUser.get();
+        User user1 = Generators.USER_SUPPLIER.get();
+        User user2 = Generators.USER_SUPPLIER.get();
         userService.addUser(user1);
 
         User updatedUser = new User(null, "update", "update@user.com");
@@ -106,7 +89,7 @@ class UserServiceTest {
 
     @Test
     public void userGetTest() {
-        User user = newUser.get();
+        User user = Generators.USER_SUPPLIER.get();
         userService.addUser(user);
 
         assertAll(
@@ -121,7 +104,7 @@ class UserServiceTest {
 
     @Test
     public void userDeleteTest() {
-        User user = newUser.get();
+        User user = Generators.USER_SUPPLIER.get();
         userService.addUser(user);
 
         assertAll(
@@ -135,6 +118,7 @@ class UserServiceTest {
 
     @Test
     public void userGetAllTest() {
+
         assertAll(
                 () -> assertTrue(userService.getAll().size() > 0)
         );
