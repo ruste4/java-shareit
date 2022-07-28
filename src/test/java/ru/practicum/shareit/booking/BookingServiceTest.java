@@ -13,7 +13,6 @@ import ru.practicum.shareit.Generators;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.exceptions.BookingIncorrectStartEndDatesException;
 import ru.practicum.shareit.booking.exceptions.BookingNotFound;
-import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
 import ru.practicum.shareit.user.User;
