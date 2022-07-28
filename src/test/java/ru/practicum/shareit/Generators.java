@@ -1,8 +1,11 @@
 package ru.practicum.shareit;
 
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -33,5 +36,19 @@ public class Generators {
         newItem.setOwner(itemOwner);
 
         return newItem;
+    };
+
+    public static final Supplier<Booking> BOOKING_SUPPLIER = () -> {
+        User booker = USER_SUPPLIER.get();
+        Item item = ITEM_SUPPLIER.get();
+
+        Booking newBooking = new Booking();
+        newBooking.setStart(LocalDateTime.now().plusDays(1));
+        newBooking.setEnd(LocalDateTime.now().plusDays(2));
+        newBooking.setItem(item);
+        newBooking.setBooker(booker);
+        newBooking.setStatus(BookingStatus.WAITING);
+
+        return newBooking;
     };
 }

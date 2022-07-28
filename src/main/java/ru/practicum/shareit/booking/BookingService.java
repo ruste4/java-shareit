@@ -142,7 +142,7 @@ public class BookingService {
 
         userIsOwnerBooking.check(booking, user);
 
-        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
+        if (booking.getStatus().equals(BookingStatus.APPROVED) && isApproved) {
             throw new BookingAlreadyApprovedException(String.format("Booking with id:%s already approved.", bookingId));
         }
 
