@@ -10,9 +10,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.Generators;
+import ru.practicum.shareit.item.dto.CommentCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import javax.validation.ConstraintViolationException;
@@ -248,4 +251,19 @@ class ItemServiceTest {
 
         assertEquals(itemService.searchByNameAndDescription(searchTxt).size(), 0);
     }
+
+    @Test
+    public void addCommentToItemWithoutBookingFailed() {
+        Item item = Generators.ITEM_SUPPLIER.get();
+        User user = Generators.USER_SUPPLIER.get();
+        testEntityManager.persist(item.getOwner());
+        Long itemId = testEntityManager.persistAndGetId(item, Long.class);
+        Long userId = testEntityManager.persistAndGetId(user, Long.class);
+        testEntityManager.flush();
+
+        CommentCreateDto comment = new CommentCreateDto("comment");
+
+        assertThrows(UserIsNotBookedItemException.class, () -> itemService.addComment(comment, itemId, userId));
+    }
+
 }
