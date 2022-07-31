@@ -163,6 +163,18 @@ public class BookingService {
         }
     };
 
+    public List<Booking> getAllBookingsCurrentUser(long userId, String status) {
+        List<Booking> bookings;
+
+        if (status.equals("All")) {
+            bookings = getAllByBooker(userId);
+        } else {
+            bookings = getAllByBookerWithStatus(userId, status);
+        }
+
+        return bookings;
+    }
+
     /**
      * Получить все брони по арендатору и статусу
      *
@@ -182,6 +194,18 @@ public class BookingService {
      */
     public List<Booking> getAllByBooker(long bookerId) {
         return bookingRepository.findAllByBookerIdOrderByIdDesc(bookerId);
+    }
+
+    public List<Booking> getAllBookingsForItemsOwner(long itemOwnerId, String status) {
+        List<Booking> bookings;
+
+        if (status.equals("All")) {
+            bookings = getAllByItemOwnerId(itemOwnerId);
+        } else {
+            bookings = getAllByItemOwnerIdWithStatus(itemOwnerId, status);
+        }
+
+        return bookings;
     }
 
     /**

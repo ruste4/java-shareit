@@ -31,16 +31,9 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestParam(defaultValue = "All") String status
     ) {
-        List<Booking> bookings;
-
-        if (status.equals("All")) {
-            bookings = bookingService.getAllByBooker(userId);
-        } else {
-            bookings = bookingService.getAllByBookerWithStatus(userId, status);
-
-        }
-
-        return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
+        return bookingService.getAllBookingsCurrentUser(userId, status).stream()
+                .map(BookingMapper::toBookingDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
@@ -48,15 +41,9 @@ public class BookingController {
             @RequestHeader("X-Sharer-User-Id") long itemOwnerId,
             @RequestParam(defaultValue = "All") String status
     ) {
-        List<Booking> bookings;
-
-        if (status.equals("All")) {
-            bookings = bookingService.getAllByItemOwnerId(itemOwnerId);
-        } else {
-            bookings = bookingService.getAllByItemOwnerIdWithStatus(itemOwnerId, status);
-        }
-
-        return bookings.stream().map(BookingMapper::toBookingDto).collect(Collectors.toList());
+        return bookingService.getAllBookingsForItemsOwner(itemOwnerId, status).stream()
+                .map(BookingMapper::toBookingDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
