@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Slf4j
 public class BookingController {
 
     private final BookingService bookingService;
@@ -29,9 +31,9 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllBookingsCurrentUser(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "All") String status
+            @RequestParam(defaultValue = "ALL") String state
     ) {
-        return bookingService.getAllBookingsCurrentUser(userId, status).stream()
+        return bookingService.getAllBookingsCurrentUser(userId, state).stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -39,9 +41,9 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingsForItemsOwner(
             @RequestHeader("X-Sharer-User-Id") long itemOwnerId,
-            @RequestParam(defaultValue = "All") String status
+            @RequestParam(defaultValue = "All") String state
     ) {
-        return bookingService.getAllBookingsForItemsOwner(itemOwnerId, status).stream()
+        return bookingService.getAllBookingsForItemsOwner(itemOwnerId, state).stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }

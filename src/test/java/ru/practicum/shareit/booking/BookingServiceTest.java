@@ -203,7 +203,7 @@ class BookingServiceTest {
         Booking booking1 = Generators.BOOKING_SUPPLIER.get();
         testEntityManager.persist(booking1.getItem().getOwner());
         testEntityManager.persist(booking1.getItem());
-        Long bookerId = testEntityManager.persistAndGetId(booking1.getBooker(), Long.class);
+        User booker = testEntityManager.persist(booking1.getBooker());
         testEntityManager.persist(booking1);
 
         Booking booking2 = Generators.BOOKING_SUPPLIER.get();
@@ -215,7 +215,7 @@ class BookingServiceTest {
 
         testEntityManager.flush();
 
-        assertEquals(bookingService.getAllByBooker(bookerId).size(), 2);
+        assertEquals(bookingService.getAllByBooker(booker).size(), 2);
     }
 
     @Test

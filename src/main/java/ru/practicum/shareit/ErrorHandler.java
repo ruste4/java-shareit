@@ -73,7 +73,8 @@ public class ErrorHandler {
             ItemIsNotAvailableException.class,
             BookingIncorrectStartEndDatesException.class,
             BookingAlreadyApprovedException.class,
-            UserIsNotBookedItemException.class
+            UserIsNotBookedItemException.class,
+            BookingStatusException.class
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse exceptionHandlerByBadeRequest(RuntimeException e) {

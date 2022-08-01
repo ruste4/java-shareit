@@ -165,11 +165,13 @@ public class BookingService {
 
     public List<Booking> getAllBookingsCurrentUser(long userId, String status) {
         List<Booking> bookings;
+        User booker = userService.getUserById(userId);
+        BookingStatus bookingStatus = BookingStatus.findByName(status);
 
-        if (status.equals("All")) {
-            bookings = getAllByBooker(userId);
+        if (bookingStatus.equals(BookingStatus.ALL)) {
+            bookings = getAllByBooker(booker);
         } else {
-            bookings = getAllByBookerWithStatus(userId, status);
+            bookings = getAllByBookerWithStatus(booker, bookingStatus);
         }
 
         return bookings;
@@ -178,28 +180,29 @@ public class BookingService {
     /**
      * Получить все брони по арендатору и статусу
      *
-     * @param bookerId идентификатор арендатора
-     * @param status   статус брони
+     * @param booker аредатор
+     * @param bookingStatus   статус брони
      * @return список броней выбранных по bookerId и status
      */
-    public List<Booking> getAllByBookerWithStatus(long bookerId, String status) {
-        return bookingRepository.findAllByBookerIdAndStatusOrderByIdDesc(bookerId, BookingStatus.valueOf(status));
+    public List<Booking> getAllByBookerWithStatus(User booker, BookingStatus bookingStatus) {
+        return bookingRepository.findAllByBookerAndStatusOrderByIdDesc(booker, bookingStatus);
     }
 
     /**
      * Получить все брони по арендатору
      *
-     * @param bookerId идентификатор арендатора
+     * @param booker арендатор
      * @return список броней выбранных по bookerId
      */
-    public List<Booking> getAllByBooker(long bookerId) {
-        return bookingRepository.findAllByBookerIdOrderByIdDesc(bookerId);
+    public List<Booking> getAllByBooker(User booker) {
+        return bookingRepository.findAllByBookerOrderByIdDesc(booker);
     }
 
     public List<Booking> getAllBookingsForItemsOwner(long itemOwnerId, String status) {
         List<Booking> bookings;
+        BookingStatus bookingStatus = BookingStatus.findByName(status);
 
-        if (status.equals("All")) {
+        if (bookingStatus.equals(BookingStatus.ALL)) {
             bookings = getAllByItemOwnerId(itemOwnerId);
         } else {
             bookings = getAllByItemOwnerIdWithStatus(itemOwnerId, status);

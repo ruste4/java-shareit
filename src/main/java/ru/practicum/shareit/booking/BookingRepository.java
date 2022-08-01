@@ -9,9 +9,9 @@ import ru.practicum.shareit.user.User;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findAllByBookerIdAndStatusOrderByIdDesc(long bookerId, BookingStatus status);
+    List<Booking> findAllByBookerAndStatusOrderByIdDesc(User booker, BookingStatus status);
 
-    List<Booking> findAllByBookerIdOrderByIdDesc(long bookerId);
+    List<Booking> findAllByBookerOrderByIdDesc(User booker);
 
     @Query("SELECT b FROM Booking b INNER JOIN b.item Item WHERE Item.owner=:owner ORDER BY b.id DESC")
     List<Booking> findAllBookingsByItemOwner(@Param("owner") User owner);

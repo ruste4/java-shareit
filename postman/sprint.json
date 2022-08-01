@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "1c36426e-c1b1-4944-9366-69d9cc983c1c",
+		"_postman_id": "3f4e7377-eec3-40dd-a9cb-ae696885394e",
 		"name": "ShareIt Sprint 2 (add-bookings)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "15274472"
+		"_exporter_id": "2036415"
 	},
 	"item": [
 		{
@@ -1665,6 +1665,64 @@
 					"response": []
 				},
 				{
+					"name": "Item 3 create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"pm.test(\"Test create item\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(3);",
+									"    pm.expect(jsonData.name, '\"name\" field').to.eql('Клей Момент');",
+									"    pm.expect(jsonData.description, '\"description\" field').to.eql('Тюбик суперклея марки Момент');",
+									"    pm.expect(jsonData.available, '\"available\" field').to.true;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Клей Момент\",\n    \"description\": \"Тюбик суперклея марки Момент\",\n    \"available\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/items",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Item get all",
 					"event": [
 						{
@@ -1725,11 +1783,17 @@
 									"});",
 									"pm.test(\"Test get all\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.length, 'items count in total').to.eql(1);",
+									"    pm.expect(jsonData.length, 'items count in total').to.eql(2);",
+									"    ",
 									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(2);",
 									"    pm.expect(jsonData[0].name, 'result[0]: \"name\" field').to.eql('Отвертка');",
 									"    pm.expect(jsonData[0].description, 'result[0]: \"description\" field').to.eql('Аккумуляторная отвертка');",
 									"    pm.expect(jsonData[0].available, 'result[0]: \"available\" field').to.true;",
+									"",
+									"    pm.expect(jsonData[1].id, 'result[1]: \"id\" field').to.eql(3);",
+									"    pm.expect(jsonData[1].name, 'result[1]: \"name\" field').to.eql('Клей Момент');",
+									"    pm.expect(jsonData[1].description, 'result[1]: \"description\" field').to.eql('Тюбик суперклея марки Момент');",
+									"    pm.expect(jsonData[1].available, 'result[1]: \"available\" field').to.true;",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2181,137 +2245,6 @@
 			"name": "bookings",
 			"item": [
 				{
-					"name": "Booking create from user1 to item2 current",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.expect(pm.response.code).to.be.oneOf([200,201]);",
-									"});",
-									"pm.test(\"Test create current booking\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"var moment = require('moment');\r",
-									"\r",
-									"var start = moment().add(2, 's');\r",
-									"var end = moment().add(3, 's')\r",
-									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
-									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Sharer-User-Id",
-								"value": "1",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"itemId\": 2,\n    \"start\": \"{{start}}\",\n    \"end\": \"{{end}}\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/bookings",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"bookings"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Booking set approve by owner current",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
-									"});",
-									"pm.test(\"Test approve current booking\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);",
-									"    pm.expect(jsonData.status, '\"status\" field').to.eql('APPROVED');",
-									"    pm.expect(jsonData.booker.id, '\"booker.id\" field').to.eql(1);",
-									"    pm.expect(jsonData.item.id, '\"item.id\" field').to.eql(2);",
-									"    pm.expect(jsonData.item.name, '\"item.name\" field').to.eql('Отвертка');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "X-Sharer-User-Id",
-								"value": "4",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/bookings/:bookingId?approved=true",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"bookings",
-								":bookingId"
-							],
-							"query": [
-								{
-									"key": "approved",
-									"value": "true"
-								}
-							],
-							"variable": [
-								{
-									"key": "bookingId",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "item update set unavailable",
 					"event": [
 						{
@@ -2706,72 +2639,6 @@
 					"response": []
 				},
 				{
-					"name": "Booking create failed by end before start",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 400\", function () {",
-									"    pm.expect(pm.response.code).to.be.oneOf([400]);",
-									"});",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"var moment = require('moment');\r",
-									"\r",
-									"var start = moment().add(2, 'd');\r",
-									"var end = moment().add(1, 'd');\r",
-									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
-									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Sharer-User-Id",
-								"value": "1",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "*/*",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"itemId\": 2,\n    \"start\": \"{{start}}\",\n    \"end\": \"{{end}}\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/bookings",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"bookings"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Booking create failed by start in past",
 					"event": [
 						{
@@ -2832,6 +2699,137 @@
 							],
 							"path": [
 								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking create from user1 to item2 current",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200,201]);",
+									"});",
+									"pm.test(\"Test create current booking\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');\r",
+									"\r",
+									"var start = moment().add(3, 's');\r",
+									"var end = moment().add(4, 's')\r",
+									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
+									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": 2,\n    \"start\": \"{{start}}\",\n    \"end\": \"{{end}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking set approve by owner current",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test approve current booking\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);",
+									"    pm.expect(jsonData.status, '\"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData.booker.id, '\"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData.item.id, '\"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData.item.name, '\"item.name\" field').to.eql('Отвертка');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/:bookingId?approved=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								":bookingId"
+							],
+							"query": [
+								{
+									"key": "approved",
+									"value": "true"
+								}
+							],
+							"variable": [
+								{
+									"key": "bookingId",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -2929,6 +2927,21 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment().add(1, 'd');",
+									"var end = moment().add(2, 'd');",
+									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));",
+									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -2974,7 +2987,7 @@
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 									"});",
-									"pm.test(\"Test get booking\", function () {",
+									"pm.test(\"Test get owner booking\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.id, '\"id\" field').to.eql(2);",
 									"    pm.expect(jsonData.start, '\"start\" field').to.eql(pm.environment.get('start'));",
@@ -3017,6 +3030,92 @@
 									"key": "bookingId",
 									"value": "2"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for wrong user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([500,404]);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "100",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for wrong owner user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([500,404]);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "100",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
 							]
 						}
 					},
@@ -3083,6 +3182,203 @@
 					"response": []
 				},
 				{
+					"name": "Booking get all for user by ALL state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get user bookings by 'ALL' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(2);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].start, 'result[0]: \"start\" field').to.eql(pm.environment.get('start'));",
+									"    pm.expect(jsonData[0].end, 'result[0]: \"end\" field').to.eql(pm.environment.get('end'));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('WAITING');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Отвертка');",
+									"",
+									"    pm.expect(jsonData[1].id, 'result[1]: \"id\" field').to.eql(1);",
+									"    pm.expect(jsonData[1].status, 'result[1]: \"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData[1].booker.id, 'result[1]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[1].item.id, 'result[1]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[1].item.name, 'result[1]: \"item.name\" field').to.eql('Отвертка');",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=ALL",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "ALL"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for user by FUTURE state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get user bookings by 'FUTURE' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(2);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(2);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('WAITING');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Отвертка');",
+									"",
+									"    pm.expect(jsonData[1].id, 'result[1]: \"id\" field').to.eql(1);",
+									"    pm.expect(new Date(jsonData[1].start), 'result[1]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[1].end), 'result[1]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[1].status, 'result[1]: \"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData[1].booker.id, 'result[1]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[1].item.id, 'result[1]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[1].item.name, 'result[1]: \"item.name\" field').to.eql('Отвертка');",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=FUTURE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "FUTURE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for user by wrong state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([500,400]);",
+									"});",
+									"pm.test(\"Test get user bookings by 'UNSUPPORTED_STATUS' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error, 'Error message').to.be.eql('Unknown state: UNSUPPORTED_STATUS');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=UNSUPPORTED_STATUS",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "UNSUPPORTED_STATUS"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Booking get all for owner",
 					"event": [
 						{
@@ -3092,7 +3388,7 @@
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 									"});",
-									"pm.test(\"Test get all user booking\", function () {",
+									"pm.test(\"Test get all owner booking\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(2);",
 									"",
@@ -3137,6 +3433,204 @@
 							"path": [
 								"bookings",
 								"owner"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by ALL state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get owner bookings by 'ALL' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(2);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].start, 'result[0]: \"start\" field').to.eql(pm.environment.get('start'));",
+									"    pm.expect(jsonData[0].end, 'result[0]: \"end\" field').to.eql(pm.environment.get('end'));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('WAITING');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Отвертка');",
+									"",
+									"    pm.expect(jsonData[1].id, 'result[1]: \"id\" field').to.eql(1);",
+									"    pm.expect(jsonData[1].status, 'result[1]: \"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData[1].booker.id, 'result[1]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[1].item.id, 'result[1]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[1].item.name, 'result[1]: \"item.name\" field').to.eql('Отвертка');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=ALL",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "ALL"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by FUTURE state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get owner bookings by 'FUTURE' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(2);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(2);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('WAITING');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Отвертка');",
+									"",
+									"    pm.expect(jsonData[1].id, 'result[1]: \"id\" field').to.eql(1);",
+									"    pm.expect(new Date(jsonData[1].start), 'result[1]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[1].end), 'result[1]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[1].status, 'result[1]: \"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData[1].booker.id, 'result[1]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[1].item.id, 'result[1]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[1].item.name, 'result[1]: \"item.name\" field').to.eql('Отвертка');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=FUTURE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "FUTURE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by wrong state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([500,400]);",
+									"});",
+									"pm.test(\"Test get owner bookings by 'UNSUPPORTED_STATUS' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error, 'Error message').to.be.eql('Unknown state: UNSUPPORTED_STATUS');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=UNSUPPORTED_STATUS",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "UNSUPPORTED_STATUS"
+								}
 							]
 						}
 					},
@@ -3740,9 +4234,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"var time = setTimeout(function(){}, 3000);\r",
-									"// var t = new Date().getTime();\r",
-									"// while (new Date().getTime() < t + 3000);"
+									"var time = setTimeout(function(){}, 4000);\r",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -3848,9 +4341,10 @@
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
 									"});",
-									"pm.test(\"Test get all\", function () {",
+									"pm.test(\"Test get all bookings for user (id = 4)\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.length, 'items count in total').to.eql(1);",
+									"    pm.expect(jsonData.length, 'items count in total').to.eql(2);",
+									"    ",
 									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(2);",
 									"    pm.expect(jsonData[0].name, 'result[0]: \"name\" field').to.eql('Отвертка');",
 									"    pm.expect(jsonData[0].description, 'result[0]: \"description\" field').to.eql('Аккумуляторная отвертка');",
@@ -3861,6 +4355,13 @@
 									"    pm.expect(jsonData[0].nextBooking, 'result[0]: \"nextBooking\" field').not.null;",
 									"    pm.expect(jsonData[0].nextBooking.id, 'result[0]: \"nextBooking.id\" field').to.eql(2);",
 									"    pm.expect(jsonData[0].nextBooking.bookerId, 'result[0]: \"nextBooking.bookerId\" field').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[1].id, 'result[1]: \"id\" field').to.eql(3);",
+									"    pm.expect(jsonData[1].name, 'result[1]: \"name\" field').to.eql('Клей Момент');",
+									"    pm.expect(jsonData[1].description, 'result[1]: \"description\" field').to.eql('Тюбик суперклея марки Момент');",
+									"    pm.expect(jsonData[1].available, 'result[1]: \"available\" field').to.true;",
+									"    pm.expect(jsonData[1].lastBooking, 'result[1]: \"lastBooking\" field').is.null;",
+									"    pm.expect(jsonData[1].nextBooking, 'result[1]: \"nextBooking\" field').is.null;",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3888,6 +4389,425 @@
 							],
 							"path": [
 								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking create from user1 to item3 current",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200,201]);",
+									"});",
+									"pm.test(\"Test create current booking\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(4);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');\r",
+									"\r",
+									"var start = moment().add(3, 's');\r",
+									"var end = moment().add(1, 'd')\r",
+									"pm.environment.set('start', start.format('YYYY-MM-DDTHH:mm:ss'));\r",
+									"pm.environment.set('end', end.format('YYYY-MM-DDTHH:mm:ss'));\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"itemId\": 3,\n    \"start\": \"{{start}}\",\n    \"end\": \"{{end}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for user by WAITING state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get user bookings by 'WAITING' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(4);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('WAITING');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=WAITING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "WAITING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by WAITING state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get owner bookings by 'WAITING' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(4);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('WAITING');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=WAITING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "WAITING"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking (id=4) set rejected by owner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test reject booking\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(4);",
+									"    pm.expect(jsonData.status, '\"status\" field').to.eql('REJECTED');",
+									"    pm.expect(jsonData.booker.id, '\"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData.item.id, '\"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData.item.name, '\"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/:bookingId?approved=false",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								":bookingId"
+							],
+							"query": [
+								{
+									"key": "approved",
+									"value": "false"
+								}
+							],
+							"variable": [
+								{
+									"key": "bookingId",
+									"value": "4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for user by REJECTED state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"",
+									"pm.test(\"Test get user bookings by 'REJECTED' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(4);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('REJECTED');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=REJECTED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "REJECTED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by REJECTED state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"",
+									"pm.test(\"Test get owner bookings by 'REJECTED' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(4);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('REJECTED');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=REJECTED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "REJECTED"
+								}
 							]
 						}
 					},
@@ -3976,7 +4896,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"var time = setTimeout(function(){}, 3000);"
 								],
 								"type": "text/javascript"
 							}
@@ -4332,7 +5252,7 @@
 									"});",
 									"pm.test(\"Test create future booking\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id, '\"id\" field').to.eql(4);",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(5);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4401,7 +5321,7 @@
 									"});",
 									"pm.test(\"Test approve future booking\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id, '\"id\" field').to.eql(4);",
+									"    pm.expect(jsonData.id, '\"id\" field').to.eql(5);",
 									"    pm.expect(jsonData.status, '\"status\" field').to.eql('APPROVED');",
 									"    pm.expect(jsonData.booker.id, '\"booker.id\" field').to.eql(5);",
 									"    pm.expect(jsonData.item.id, '\"item.id\" field').to.eql(1);",
@@ -4444,7 +5364,7 @@
 							"variable": [
 								{
 									"key": "bookingId",
-									"value": "4"
+									"value": "5"
 								}
 							]
 						}
@@ -4504,6 +5424,292 @@
 								{
 									"key": "itemId",
 									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for user by CURRENT state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get user bookings by 'CURRENT' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(4);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.lessThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('REJECTED');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=CURRENT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "CURRENT"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by CURRENT state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get owner bookings by 'CURRENT' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(4);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.lessThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.greaterThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('REJECTED');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(3);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Клей Момент');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=CURRENT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "CURRENT"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for user by PAST state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get user bookings by 'PAST' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(1);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.lessThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.lessThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Отвертка');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "1",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings?state=PAST",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "PAST"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Booking get all for owner by PAST state",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"});",
+									"pm.test(\"Test get owner bookings by 'PAST' state\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.length, 'bookings count in total').to.eql(1);",
+									"",
+									"    pm.expect(jsonData[0].id, 'result[0]: \"id\" field').to.eql(1);",
+									"    pm.expect(new Date(jsonData[0].start), 'result[0]: \"start\" field').to.lessThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(new Date(jsonData[0].end), 'result[0]: \"end\" field').to.lessThan(new Date(pm.environment.get('currentDateTime')));",
+									"    pm.expect(jsonData[0].status, 'result[0]: \"status\" field').to.eql('APPROVED');",
+									"    pm.expect(jsonData[0].booker.id, 'result[0]: \"booker.id\" field').to.eql(1);",
+									"    pm.expect(jsonData[0].item.id, 'result[0]: \"item.id\" field').to.eql(2);",
+									"    pm.expect(jsonData[0].item.name, 'result[0]: \"item.name\" field').to.eql('Отвертка');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"var start = moment();",
+									"pm.environment.set('currentDateTime', start.format('YYYY-MM-DDTHH:mm:ss'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Sharer-User-Id",
+								"value": "4",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "*/*",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/owner?state=PAST",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"owner"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "PAST"
 								}
 							]
 						}
