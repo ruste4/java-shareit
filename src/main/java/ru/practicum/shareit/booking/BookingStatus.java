@@ -2,8 +2,6 @@ package ru.practicum.shareit.booking;
 
 import ru.practicum.shareit.booking.exceptions.BookingStatusException;
 
-import java.util.List;
-
 public enum BookingStatus {
     CURRENT("CURRENT"),
     COMPLETED("COMPLETED"),
