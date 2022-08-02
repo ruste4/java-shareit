@@ -10,6 +10,7 @@ public enum BookingStatus {
     APPROVED("APPROVED"),
     REJECTED("REJECTED"),
     CANCELED("CANCELED"),
+    PAST("PAST"),
     ALL("ALL");
 
     private final String val;

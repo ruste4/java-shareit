@@ -17,6 +17,8 @@ import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -164,14 +166,21 @@ public class BookingService {
     };
 
     public List<Booking> getAllBookingsCurrentUser(long userId, String status) {
-        List<Booking> bookings;
         User booker = userService.getUserById(userId);
+        List<Booking> bookings = getAllByBooker(booker);
         BookingStatus bookingStatus = BookingStatus.findByName(status);
 
-        if (bookingStatus.equals(BookingStatus.ALL)) {
-            bookings = getAllByBooker(booker);
-        } else {
-            bookings = getAllByBookerWithStatus(booker, bookingStatus);
+        switch (bookingStatus) {
+            case FUTURE:
+                return bookings.stream().filter(filterForFutureBooking).collect(Collectors.toList());
+            case CURRENT:
+                return bookings.stream().filter(filterForCurrentBooking).collect(Collectors.toList());
+            case PAST:
+                return bookings.stream().filter(filterForPastBooking).collect(Collectors.toList());
+            case REJECTED:
+                return bookings.stream().filter(filterForRejectedBooking).collect(Collectors.toList());
+            case WAITING:
+                return bookings.stream().filter(filterFroWaitingBooking).collect(Collectors.toList());
         }
 
         return bookings;
@@ -199,30 +208,45 @@ public class BookingService {
     }
 
     public List<Booking> getAllBookingsForItemsOwner(long itemOwnerId, String status) {
-        List<Booking> bookings;
+        List<Booking> bookings = getAllByItemOwnerId(itemOwnerId);
         BookingStatus bookingStatus = BookingStatus.findByName(status);
 
-        if (bookingStatus.equals(BookingStatus.ALL)) {
-            bookings = getAllByItemOwnerId(itemOwnerId);
-        } else {
-            bookings = getAllByItemOwnerIdWithStatus(itemOwnerId, status);
+        switch (bookingStatus) {
+            case FUTURE:
+                return bookings.stream().filter(filterForFutureBooking).collect(Collectors.toList());
+            case CURRENT:
+                return bookings.stream().filter(filterForCurrentBooking).collect(Collectors.toList());
+            case PAST:
+                return bookings.stream().filter(filterForPastBooking).collect(Collectors.toList());
+            case REJECTED:
+                return bookings.stream().filter(filterForRejectedBooking).collect(Collectors.toList());
+            case WAITING:
+                return bookings.stream().filter(filterFroWaitingBooking).collect(Collectors.toList());
         }
 
         return bookings;
     }
 
-    /**
-     * Получить все брони по арендодателю и статусу
-     *
-     * @param itemOwnerId идентификатор арендодателя
-     * @param status      статус брони
-     * @return список броней, выбранных по itemOwnerId и status
-     */
-    public List<Booking> getAllByItemOwnerIdWithStatus(long itemOwnerId, String status) {
-        User itemOwner = userService.getUserById(itemOwnerId);
+    private final Predicate<Booking> filterFroWaitingBooking = b -> b.getStatus().equals(BookingStatus.WAITING);
+    private final Predicate<Booking> filterForRejectedBooking = b -> b.getStatus().equals(BookingStatus.REJECTED);
+    private final Predicate<Booking> filterForPastBooking = b -> {
+        LocalDateTime now = LocalDateTime.now();
 
-        return bookingRepository.findAllBookingsByItemOwnerWithStatus(itemOwner, BookingStatus.valueOf(status));
-    }
+        return b.getStatus().equals(BookingStatus.APPROVED) && b.getEnd().isBefore(now);
+    };
+    private final Predicate<Booking> filterForCurrentBooking = b -> {
+        LocalDateTime now = LocalDateTime.now();
+
+        return (b.getStatus().equals(BookingStatus.APPROVED) || b.getStatus().equals(BookingStatus.REJECTED))
+                && b.getStart().isBefore(now) && b.getEnd().isAfter(now);
+    };
+
+    private final Predicate<Booking> filterForFutureBooking = b -> {
+        LocalDateTime now = LocalDateTime.now();
+
+        return (b.getStatus().equals(BookingStatus.APPROVED) || b.getStatus().equals(BookingStatus.WAITING))
+                && b.getStart().isAfter(now);
+    };
 
     /**
      * Получить все брони по арендодателю
