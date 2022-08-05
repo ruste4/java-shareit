@@ -12,17 +12,10 @@ public class UserMapper {
     }
 
     public static User toUser(UserDto userDto) {
-        return User.builder()
-                .id(userDto.getId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();
+        return new User(userDto.getId(), userDto.getName(), userDto.getEmail());
     }
 
     public static User toUser(UserCreateDto userCreateDto) {
-        return User.builder()
-                .name(userCreateDto.getName())
-                .email(userCreateDto.getEmail())
-                .build();
+        return new User(null, userCreateDto.getName(), userCreateDto.getEmail());
     }
 }

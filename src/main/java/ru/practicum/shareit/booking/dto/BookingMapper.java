@@ -1,7 +1,12 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStatus;
 
+@Component
+@RequiredArgsConstructor
 public class BookingMapper {
     public static BookingDto toBookingDto(Booking booking) {
 
@@ -30,5 +35,11 @@ public class BookingMapper {
                 .booker(booker)
                 .status(booking.getStatus().toString())
                 .build();
+    }
+
+    public static Booking toBooking(BookingCreateDto bookingCreateDto) {
+        return new Booking(
+                bookingCreateDto.getStart(), bookingCreateDto.getEnd(), BookingStatus.WAITING
+        );
     }
 }

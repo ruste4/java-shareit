@@ -1,7 +1,6 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.item;
 
 import lombok.*;
-import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
@@ -9,21 +8,21 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "bookings")
-@AllArgsConstructor
-@Setter
+@Table(name = "comments")
 @Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class Booking {
+public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "start_date_time")
-    private LocalDateTime start;
-
-    @Column(name = "end_date_time")
-    private LocalDateTime end;
+    @Column(name = "text")
+    private String text;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
@@ -31,25 +30,19 @@ public class Booking {
     private Item item;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booker_id")
+    @JoinColumn(name = "author_id")
     @ToString.Exclude
-    private User booker;
+    private User author;
 
-    @Column(name = "status")
-    private BookingStatus status;
-
-    public Booking(LocalDateTime start, LocalDateTime end, BookingStatus status) {
-        this.start = start;
-        this.end = end;
-        this.status = status;
-    }
+    @Column(name = "created")
+    private LocalDateTime created = LocalDateTime.now();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Booking booking = (Booking) o;
-        return Objects.equals(id, booking.id);
+        Comment comment = (Comment) o;
+        return Objects.equals(id, comment.id);
     }
 
     @Override

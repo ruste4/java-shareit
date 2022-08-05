@@ -1,29 +1,49 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.user.exceptions.UserAlreadyExistException;
+import ru.practicum.shareit.booking.exceptions.*;
+import ru.practicum.shareit.item.exceptions.ItemIsNotAvailableException;
+import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
+import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
+import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
+import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
-public class UserErrorHandler {
-    @ExceptionHandler({UserAlreadyExistException.class})
+public class ErrorHandler {
+    @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse alreadyExistExceptionHandle(RuntimeException e) {
+    public ErrorResponse constraintViolationExceptionHandle(ConstraintViolationException e) {
+        if (e.getConstraintName().equals("uq_user_email")) {
+            String message = "Email already exist";
+            log.warn(message);
+
+            return new ErrorResponse(message);
+        }
+
         log.warn(e.getMessage());
 
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            UserNotOwnerItemException.class,
+            ItemNotFoundException.class,
+            BookingNotFound.class,
+            BookingAccessBlocked.class,
+            BookerIsOwnerItemException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(RuntimeException e) {
         log.warn(e.getMessage());
@@ -49,7 +69,21 @@ public class UserErrorHandler {
         return errors;
     }
 
-    private class ErrorResponse {
+    @ExceptionHandler({
+            ItemIsNotAvailableException.class,
+            BookingIncorrectStartEndDatesException.class,
+            BookingAlreadyApprovedException.class,
+            UserIsNotBookedItemException.class,
+            BookingStatusException.class
+    })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse exceptionHandlerByBadeRequest(RuntimeException e) {
+        log.warn(e.getMessage());
+
+        return new ErrorResponse(e.getMessage());
+    }
+
+    private static class ErrorResponse {
         private final String error;
 
         public ErrorResponse(String error) {

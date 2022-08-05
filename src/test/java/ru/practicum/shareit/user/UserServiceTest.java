@@ -1,126 +1,126 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.user.exceptions.UserAlreadyExistException;
+import org.springframework.dao.DataIntegrityViolationException;
+import ru.practicum.shareit.Generators;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
+import javax.validation.ConstraintViolationException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserServiceTest {
-
-    private static AtomicLong userIdHolder;
 
     @Autowired
     private UserService userService;
 
-    private final Supplier<User> newUser = () -> User.builder()
-            .id(userIdHolder.incrementAndGet())
-            .name("User" + userIdHolder.get())
-            .email("user" + userIdHolder.get() + "@userServiceTest.ru")
-            .build();
+    @Test
+    public void createUserTest() {
+        User user = Generators.USER_SUPPLIER.get();
 
-    @BeforeAll
-    public static void beforeAllUserServiceTests() {
-        userIdHolder = new AtomicLong();
+        assertAll(
+                () -> assertDoesNotThrow(() -> userService.addUser(user), "User create"),
+                () -> assertNotNull(user.getId(), "User id is not null"),
+                () -> assertThrows(
+                        DataIntegrityViolationException.class,
+                        () -> {
+                            user.setId(null);
+                            userService.addUser(user);
+                        },
+                        "User create duplicate email"
+                ),
+                () -> assertThrows(
+                        DataIntegrityViolationException.class,
+                        () -> {
+                            user.setEmail(null);
+                            userService.addUser(user);
+                        },
+                        "User create fail no email"
+                ),
+                () -> assertThrows(
+                        ConstraintViolationException.class,
+                        () -> {
+                            user.setEmail("user.com");
+                            userService.addUser(user);
+                        },
+                        "User create fail invalid email"
+                )
+        );
     }
 
     @Test
-    public void shouldBeSuccessfulAdditionNewUser() {
-        User user = newUser.get();
-
-        assertDoesNotThrow(() -> userService.addUser(user));
-    }
-
-    @Test
-    public void shouldBeAlreadyExistExceptionWhenDuplicatingEmailAtAdding() {
-        User user1 = newUser.get();
-        User user2 = newUser.get();
-
-        user2.setEmail(user1.getEmail());
-
-        assertThrows(UserAlreadyExistException.class, () -> {
-            userService.addUser(user1);
-            userService.addUser(user2);
-        });
-    }
-
-    @Test
-    public void shouldBeSuccessfulGetUser() {
-        User user = newUser.get();
-
-        userService.addUser(user);
-
-        assertEquals(userService.getUserById(user.getId()), user);
-    }
-
-    @Test
-    public void shouldByUserNotFoundExceptionWhenUserNotExist() {
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(-1L));
-    }
-
-    @Test
-    public void shouldBeSuccessfulUpdatingUser() {
-        User user = newUser.get();
-        User updatedUser = newUser.get();
-        String userName = "Updated user name";
-
-        userService.addUser(user);
-        updatedUser.setId(user.getId());
-        updatedUser.setName(userName);
-        userService.updateUser(updatedUser.getId(), updatedUser);
-
-        assertEquals(userService.getUserById(user.getId()).getName(), userName);
-    }
-
-    @Test
-    public void shouldBeUserNotFoundExceptionWhenUpdatingNotExistUser() {
-        User user = newUser.get();
-        user.setId(-1L);
-
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(user.getId(), user));
-    }
-
-    @Test
-    public void shouldBeUserAlreadyExistExceptionWhenEmailExist() {
-        User user1 = newUser.get();
-        User user2 = newUser.get();
-        String user1Email = "alreadyExist@email.ru";
-        user1.setEmail(user1Email);
-
+    public void userUpdateTest() {
+        User user1 = Generators.USER_SUPPLIER.get();
+        User user2 = Generators.USER_SUPPLIER.get();
         userService.addUser(user1);
-        userService.addUser(user2);
 
-        User updatedUser2 = newUser.get();
-        updatedUser2.setId(user2.getId());
-        updatedUser2.setName(user2.getName());
-        updatedUser2.setEmail(user1Email);
+        User updatedUser = new User(null, "update", "update@user.com");
+        User updateUserName = new User(null, "updateName", null);
+        User updateUserEmail = new User(null, null, "updateName@user.com");
+        User updateUserEmailExists = new User(null, null, user2.getEmail());
 
-        assertThrows(UserAlreadyExistException.class, () -> {
-            userService.updateUser(updatedUser2.getId(), updatedUser2);
-        });
+        assertAll(
+                () -> assertDoesNotThrow(() -> userService.updateUser(user1.getId(), updatedUser), "User update"),
+                () -> userService.addUser(user2),
+                () -> assertEquals(
+                        userService.updateUser(user1.getId(), updateUserName).getName(),
+                        "updateName",
+                        "User name update"
+                ),
+                () -> assertEquals(
+                        userService.updateUser(user1.getId(), updateUserEmail).getEmail(),
+                        "updateName@user.com",
+                        "User name update email"
+                ),
+                () -> assertThrows(DataIntegrityViolationException.class,
+                        () -> userService.updateUser(user1.getId(), updateUserEmailExists),
+                        "User name update email exists"
+                )
+        );
+
     }
 
     @Test
-    public void shouldBeSuccessfulDeleteUser() {
-        User user = newUser.get();
-
+    public void userGetTest() {
+        User user = Generators.USER_SUPPLIER.get();
         userService.addUser(user);
-        userService.deleteUser(user.getId());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(user.getId()));
+        assertAll(
+                () -> assertDoesNotThrow(() -> userService.getUserById(user.getId()), "Get user"),
+                () -> assertThrows(
+                        UserNotFoundException.class,
+                        () -> userService.getUserById(-1),
+                        "User get unkonwn"
+                )
+        );
     }
 
     @Test
-    public void shouldBeUserNotFoundExceptionWhenUserNotExist() {
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(-1));
+    public void userDeleteTest() {
+        User user = Generators.USER_SUPPLIER.get();
+        userService.addUser(user);
+
+        assertAll(
+                () -> assertDoesNotThrow(() -> userService.deleteUser(user.getId()), "Delete user"),
+                () -> assertDoesNotThrow(() -> {
+                    user.setId(null);
+                    userService.addUser(user);
+                }, "User create after delete")
+        );
+    }
+
+    @Test
+    public void userGetAllTest() {
+
+        assertAll(
+                () -> assertTrue(userService.getAll().size() > 0)
+        );
     }
 }

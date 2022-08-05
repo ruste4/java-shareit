@@ -1,10 +1,8 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -12,14 +10,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
-
-    @Autowired
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
 
     @PostMapping
     public ItemDto addItem(
@@ -43,15 +37,17 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@PathVariable long itemId) {
-        return ItemMapper.toItemDto(itemService.getItemById(itemId));
+    public ItemWithBookingDatesDto getItem(
+            @PathVariable long itemId,
+            @RequestHeader("X-Sharer-User-Id") long userId
+    ) {
+
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllByOwnerId(userId).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    public List<ItemWithBookingDatesDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemService.getAllByOwnerId(userId);
     }
 
     @GetMapping("/search")
@@ -59,5 +55,14 @@ public class ItemController {
         return itemService.searchByNameAndDescription(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(
+            @Valid @RequestBody CommentCreateDto commentCreateDto,
+            @PathVariable long itemId,
+            @RequestHeader("X-Sharer-User-Id") long userId
+    ) {
+        return CommentMapper.toCommentDto(itemService.addComment(commentCreateDto, itemId, userId));
     }
 }
