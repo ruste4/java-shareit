@@ -20,9 +20,7 @@ public class ItemController {
             @RequestHeader("X-Sharer-User-Id") long userId,
             @Valid @RequestBody ItemCreateDto itemCreateDto
     ) {
-        Item item = ItemMapper.toItem(itemCreateDto);
-
-        return ItemMapper.toItemDto(itemService.addItem(userId, item));
+        return ItemMapper.toItemDto(itemService.addItem(userId, itemCreateDto));
     }
 
     @PatchMapping("/{itemId}")

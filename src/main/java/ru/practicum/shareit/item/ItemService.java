@@ -11,6 +11,8 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
+import ru.practicum.shareit.requests.ItemRequest;
+import ru.practicum.shareit.requests.RequestService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -28,6 +30,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
 
+    private final RequestService requestService;
+
     private final CommentRepository commentRepository;
 
     private final BookingRepository bookingRepository;
@@ -36,13 +40,19 @@ public class ItemService {
      * Добавить предмет
      *
      * @param ownerId id владельца предмета
-     * @param item    предмет
      * @return предмет с сгенерированным для него номером id. Генерация id происходит в хранилище предметов
      * @throws UserNotFoundException если пользователь из поля owner не найден в системе
      */
-    public Item addItem(long ownerId, Item item) {
+    public Item addItem(long ownerId, ItemCreateDto itemCreateDto) {
+        Item item = ItemMapper.toItem(itemCreateDto);
         User owner = checkAndGetItemOwner(ownerId, item.getName());
         item.setOwner(owner);
+
+        if (itemCreateDto.getRequestId() != null) {
+            ItemRequest itemRequest = requestService.getItemRequestById(itemCreateDto.getRequestId());
+            item.setRequest(itemRequest);
+        }
+
         log.info("Add {}", item);
 
         return itemRepository.save(item);
@@ -281,5 +291,8 @@ public class ItemService {
         return commentRepository.findAllCommentByItem(item);
     }
 
+    public List<Item> getAllItemByRequestId(long requestId) {
+        return itemRepository.findAllByRequestId(requestId);
+    }
 
 }

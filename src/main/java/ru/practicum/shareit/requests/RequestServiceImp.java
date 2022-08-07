@@ -1,0 +1,97 @@
+package ru.practicum.shareit.requests;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.requests.dto.ItemRequestCreateDto;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
+import ru.practicum.shareit.requests.dto.ItemRequestMapper;
+import ru.practicum.shareit.requests.dto.ItemRequestWithResponsesDto;
+import ru.practicum.shareit.requests.exceptions.ItemRequestNotFound;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserService;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class RequestServiceImp implements RequestService {
+
+    private final ItemRequestRepository itemRequestRepository;
+    private final UserService userService;
+
+    @Override
+    public ItemRequestDto addItemRequest(ItemRequestCreateDto itemRequestCreateDto) {
+        ItemRequest itemRequest = new ItemRequest();
+        String description = itemRequestCreateDto.getDescription();
+        User requester = userService.getUserById(itemRequestCreateDto.getRequesterId());
+        LocalDateTime createdDateTime = LocalDateTime.now();
+
+        itemRequest.setDescription(description);
+        itemRequest.setRequester(requester);
+        itemRequest.setCreated(createdDateTime);
+
+        itemRequestRepository.save(itemRequest);
+
+        return ItemRequestMapper.toItemRequestDto(itemRequest);
+    }
+
+    @Override
+    public List<ItemRequest> getAllItemRequestsByRequesterId(long requesterId) {
+        return itemRequestRepository.findAllByRequesterIdOrderByCreatedDesc(requesterId);
+    }
+
+    @Override
+    public List<ItemRequestWithResponsesDto> getAllItemRequestsWithResponsesCurrentUser(long currentUserId) {
+        List<ItemRequest> itemRequests = getAllItemRequestsByRequesterId(currentUserId);
+        return itemRequests.stream()
+                .map(this::addResponsesForItemRequest)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ItemRequestWithResponsesDto getItemRequestWithResponsesById(long id) {
+        ItemRequest itemRequest = getItemRequestById(id);
+
+        return addResponsesForItemRequest(itemRequest);
+    }
+
+    private ItemRequestWithResponsesDto addResponsesForItemRequest(ItemRequest itemRequest) {
+        List<Item> responses = itemRequestRepository.getAllItemByRequestId(itemRequest);
+
+        ItemRequestWithResponsesDto itemRequestWithResponses = ItemRequestMapper
+                .toItemRequestWithResponsesDto(itemRequest);
+
+        List<ItemRequestWithResponsesDto.Item> itemsForItemRequestWithResponsesDto = responses.stream()
+                .map(ItemRequestWithResponsesDto.Item::new)
+                .collect(Collectors.toList());
+
+        itemRequestWithResponses.setResponses(itemsForItemRequestWithResponsesDto);
+
+        return itemRequestWithResponses;
+    }
+
+    @Override
+    public ItemRequest getItemRequestById(long id) {
+        return itemRequestRepository.findById(id).orElseThrow(
+                () -> new ItemRequestNotFound(String.format("Item request with id:%s not found.", id))
+        );
+    }
+
+    @Override
+    public List<ItemRequestDto> getItemRequestsListOtherUser(long currentUserId, int from, int size) {
+        return null;
+    }
+
+    @Override
+    public ItemRequestWithResponsesDto getItemRequestWithResponses(long itemRequestId) {
+        return null;
+    }
+}

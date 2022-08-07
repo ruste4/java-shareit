@@ -12,6 +12,19 @@ public class ItemMapper {
                 .build();
     }
 
+    public static ItemCreateDto toItemCreateDto(Item item) {
+        ItemCreateDto.ItemCreateDtoBuilder result = ItemCreateDto.builder();
+        result.name(item.getName());
+        result.description(item.getDescription());
+        result.available(item.isAvailable());
+
+        if (item.getRequest() != null) {
+            result.requestId(item.getRequest().getId());
+        }
+
+        return result.build();
+    }
+
     public static Item toItem(ItemDto itemDto) {
         return new Item(itemDto.getId(),
                 itemDto.getName(),

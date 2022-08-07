@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@EqualsAndHashCode
 public class ItemRequestDto {
     private Long id;
 
