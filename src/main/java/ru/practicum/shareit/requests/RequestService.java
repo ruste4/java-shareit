@@ -35,14 +35,8 @@ public interface RequestService {
     /**
      * Получить список запросов, созданные другими пользователями
      *
-     * @param currentUserId - идентификатор текущего пользователя
      * @param from          - индекса первого элемента (для пагинации)
      * @param size          - количестов элементов отображения
      */
-    List<ItemRequestDto> getItemRequestsListOtherUser(long currentUserId, int from, int size);
-
-    /**
-     * Получить запрос с ответами на него
-     */
-    ItemRequestWithResponsesDto getItemRequestWithResponses(long itemRequestId);
+    List<ItemRequestDto> getAllItemRequests(int from, int size);
 }

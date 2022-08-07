@@ -2,10 +2,11 @@ package ru.practicum.shareit.requests;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.requests.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.dto.ItemRequestMapper;
@@ -86,12 +87,10 @@ public class RequestServiceImp implements RequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getItemRequestsListOtherUser(long currentUserId, int from, int size) {
-        return null;
+    public List<ItemRequestDto> getAllItemRequests(int from, int size) {
+        return itemRequestRepository.findAll(PageRequest.of(from, size, Sort.by("created").descending()))
+                .map(ItemRequestMapper::toItemRequestDto).toList();
+
     }
 
-    @Override
-    public ItemRequestWithResponsesDto getItemRequestWithResponses(long itemRequestId) {
-        return null;
-    }
 }
