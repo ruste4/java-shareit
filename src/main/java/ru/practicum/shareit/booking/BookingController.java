@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 public class BookingController {
 
     private final BookingService bookingService;
-    private final BookingMapper bookingMapper;
 
     @PostMapping
     public BookingDto addBooking(
