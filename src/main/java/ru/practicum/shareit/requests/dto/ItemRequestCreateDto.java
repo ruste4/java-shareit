@@ -1,12 +1,16 @@
 package ru.practicum.shareit.requests.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
+
 
 @Data
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemRequestCreateDto {
-    private Long requesterId;
-
+    @NotBlank
     private String description;
 }

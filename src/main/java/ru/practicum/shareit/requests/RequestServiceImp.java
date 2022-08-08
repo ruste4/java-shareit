@@ -29,10 +29,10 @@ public class RequestServiceImp implements RequestService {
     private final UserService userService;
 
     @Override
-    public ItemRequestDto addItemRequest(ItemRequestCreateDto itemRequestCreateDto) {
+    public ItemRequestDto addItemRequest(ItemRequestCreateDto itemRequestCreateDto, long userId) {
         ItemRequest itemRequest = new ItemRequest();
         String description = itemRequestCreateDto.getDescription();
-        User requester = userService.getUserById(itemRequestCreateDto.getRequesterId());
+        User requester = userService.getUserById(userId);
         LocalDateTime createdDateTime = LocalDateTime.now();
 
         itemRequest.setDescription(description);
@@ -45,13 +45,15 @@ public class RequestServiceImp implements RequestService {
     }
 
     @Override
-    public List<ItemRequest> getAllItemRequestsByRequesterId(long requesterId) {
-        return itemRequestRepository.findAllByRequesterIdOrderByCreatedDesc(requesterId);
+    public List<ItemRequest> getAllItemRequestsByRequester(User requester) {
+        return itemRequestRepository.findAllByRequesterOrderByCreatedDesc(requester);
     }
 
     @Override
     public List<ItemRequestWithResponsesDto> getAllItemRequestsWithResponsesCurrentUser(long currentUserId) {
-        List<ItemRequest> itemRequests = getAllItemRequestsByRequesterId(currentUserId);
+        User currentUser = userService.getUserById(currentUserId);
+
+        List<ItemRequest> itemRequests = getAllItemRequestsByRequester(currentUser);
         return itemRequests.stream()
                 .map(this::addResponsesForItemRequest)
                 .collect(Collectors.toList());

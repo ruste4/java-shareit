@@ -3,6 +3,7 @@ package ru.practicum.shareit.requests;
 import ru.practicum.shareit.requests.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.requests.dto.ItemRequestWithResponsesDto;
+import ru.practicum.shareit.user.User;
 
 import java.util.List;
 
@@ -10,12 +11,12 @@ public interface RequestService {
     /**
      * Добавить запрос
      */
-    ItemRequestDto addItemRequest(ItemRequestCreateDto itemRequestCreateDto);
+    ItemRequestDto addItemRequest(ItemRequestCreateDto itemRequestCreateDto, long userId);
 
     /**
      * Получить все запросы текущего пользователя
      */
-    List<ItemRequest> getAllItemRequestsByRequesterId(long currentUser);
+    List<ItemRequest> getAllItemRequestsByRequester(User requester);
 
     /**
      * Получить список запросов текущего пользователя вместе с ответами
@@ -39,4 +40,6 @@ public interface RequestService {
      * @param size          - количестов элементов отображения
      */
     List<ItemRequestDto> getAllItemRequests(int from, int size);
+
+
 }

@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -20,14 +19,14 @@ public class ItemRequestWithResponsesDto {
 
     @Data
     public static class Item {
-        private Long itemId;
+        private Long id;
 
         private String name;
 
         private Long ownerId;
 
         public Item(ru.practicum.shareit.item.Item item) {
-            this.itemId = item.getId();
+            this.id = item.getId();
             this.name = item.getName();
             this.ownerId = item.getOwner().getId();
         }

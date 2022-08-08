@@ -44,12 +44,9 @@ class RequestServiceImpTest {
         Long requesterId = testEntityManager.persistAndGetId(requester, Long.class);
         String description = "Item request by addItemRequest testing";
 
-        ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description)
-                .build();
+        ItemRequestCreateDto itemRequestCreateDto = new ItemRequestCreateDto(description);
 
-        requestService.addItemRequest(itemRequestCreateDto);
+        requestService.addItemRequest(itemRequestCreateDto, requesterId);
 
         TypedQuery<ItemRequest> query = testEntityManager.getEntityManager().createQuery(
                 "SELECT iq FROM ItemRequest iq where iq.description = :description",
@@ -60,7 +57,7 @@ class RequestServiceImpTest {
 
         assertAll(
                 () -> assertNotNull(itemRequest.getId()),
-                () -> assertEquals(itemRequest.getRequester().getId(), itemRequestCreateDto.getRequesterId()),
+                () -> assertEquals(itemRequest.getRequester().getId(), requesterId),
                 () -> assertEquals(itemRequest.getDescription(), itemRequestCreateDto.getDescription())
         );
     }
@@ -71,28 +68,21 @@ class RequestServiceImpTest {
         Long requesterId = testEntityManager.persistAndGetId(requester, Long.class);
         String description1 = "Description by first request";
 
-        ItemRequestCreateDto firstItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description1)
-                .build();
+        ItemRequestCreateDto firstItemRequestCreateDto = new ItemRequestCreateDto(description1);
 
         String description2 = "Description by second request";
-        ItemRequestCreateDto secondItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description2)
-                .build();
+        ItemRequestCreateDto secondItemRequestCreateDto = new ItemRequestCreateDto(description2);
 
         String description3 = "Description by third request";
-        ItemRequestCreateDto thirdItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description3)
-                .build();
+        ItemRequestCreateDto thirdItemRequestCreateDto = new ItemRequestCreateDto(description3);
 
-        requestService.addItemRequest(firstItemRequestCreateDto);
-        requestService.addItemRequest(secondItemRequestCreateDto);
-        requestService.addItemRequest(thirdItemRequestCreateDto);
+        requestService.addItemRequest(firstItemRequestCreateDto, requesterId);
+        requestService.addItemRequest(secondItemRequestCreateDto, requesterId);
+        requestService.addItemRequest(thirdItemRequestCreateDto, requesterId);
 
-        List<ItemRequest> requestList = requestService.getAllItemRequestsByRequesterId(requesterId);
+        List<ItemRequest> requestList = requestService.getAllItemRequestsByRequester(
+                testEntityManager.find(User.class, requesterId)
+        );
 
         List<ItemRequest> foundedRequests = testEntityManager.getEntityManager().createQuery(
                         "SELECT iq FROM ItemRequest iq where iq.requester = :requester",
@@ -110,26 +100,17 @@ class RequestServiceImpTest {
         Long requesterId = testEntityManager.persistAndGetId(requester, Long.class);
         String description1 = "Description by first request";
 
-        ItemRequestCreateDto firstItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description1)
-                .build();
+        ItemRequestCreateDto firstItemRequestCreateDto = new ItemRequestCreateDto(description1);
 
         String description2 = "Description by second request";
-        ItemRequestCreateDto secondItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description2)
-                .build();
+        ItemRequestCreateDto secondItemRequestCreateDto = new ItemRequestCreateDto(description2);
 
         String description3 = "Description by third request";
-        ItemRequestCreateDto thirdItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description3)
-                .build();
+        ItemRequestCreateDto thirdItemRequestCreateDto = new ItemRequestCreateDto(description3);
 
-        ItemRequestDto itemRequestDto1 = requestService.addItemRequest(firstItemRequestCreateDto);
-        ItemRequestDto itemRequestDto2 = requestService.addItemRequest(secondItemRequestCreateDto);
-        ItemRequestDto itemRequestDto3 = requestService.addItemRequest(thirdItemRequestCreateDto);
+        ItemRequestDto itemRequestDto1 = requestService.addItemRequest(firstItemRequestCreateDto, requesterId);
+        ItemRequestDto itemRequestDto2 = requestService.addItemRequest(secondItemRequestCreateDto, requesterId);
+        ItemRequestDto itemRequestDto3 = requestService.addItemRequest(thirdItemRequestCreateDto, requesterId);
 
         // Добавляем вещи отвечающие запросам
 
@@ -169,7 +150,7 @@ class RequestServiceImpTest {
                         serviceResult.get(1).getResponses().size(), 1, "Должен быть один ответ для запроса"
                 ),
                 () -> assertEquals(
-                        serviceResult.get(1).getResponses().get(0).getItemId(),
+                        serviceResult.get(1).getResponses().get(0).getId(),
                         item3.getId(),
                         String.format("Ответом на запрос должен быть %s", item3)
                 ),
@@ -182,12 +163,12 @@ class RequestServiceImpTest {
                         serviceResult.get(2).getResponses().size(), 2, "Должно быть два ответа на запрос"
                 ),
                 () -> assertEquals(
-                        serviceResult.get(2).getResponses().get(0).getItemId(),
+                        serviceResult.get(2).getResponses().get(0).getId(),
                         item1.getId(),
                         String.format("Ответом на запрос должен быть %s", item1)
                 ),
                 () -> assertEquals(
-                        serviceResult.get(2).getResponses().get(1).getItemId(),
+                        serviceResult.get(2).getResponses().get(1).getId(),
                         item2.getId(),
                         String.format("Ответом на запрос должен быть %s", item2)
                 )
@@ -200,33 +181,21 @@ class RequestServiceImpTest {
         Long requesterId = testEntityManager.persistAndGetId(requester, Long.class);
         String description1 = "Description by first request";
 
-        ItemRequestCreateDto firstItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description1)
-                .build();
+        ItemRequestCreateDto firstItemRequestCreateDto = new ItemRequestCreateDto(description1);
 
         String description2 = "Description by second request";
-        ItemRequestCreateDto secondItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description2)
-                .build();
+        ItemRequestCreateDto secondItemRequestCreateDto = new ItemRequestCreateDto(description2);
 
         String description3 = "Description by third request";
-        ItemRequestCreateDto thirdItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description3)
-                .build();
+        ItemRequestCreateDto thirdItemRequestCreateDto = new ItemRequestCreateDto(description3);
 
         String description4 = "Description by fourth request";
-        ItemRequestCreateDto fourthItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description4)
-                .build();
+        ItemRequestCreateDto fourthItemRequestCreateDto = new ItemRequestCreateDto(description4);
 
-        ItemRequestDto itemRequestDto1 = requestService.addItemRequest(firstItemRequestCreateDto);
-        ItemRequestDto itemRequestDto2 = requestService.addItemRequest(secondItemRequestCreateDto);
-        ItemRequestDto itemRequestDto3 = requestService.addItemRequest(thirdItemRequestCreateDto);
-        ItemRequestDto itemRequestDto4 = requestService.addItemRequest(fourthItemRequestCreateDto);
+        ItemRequestDto itemRequestDto1 = requestService.addItemRequest(firstItemRequestCreateDto, requesterId);
+        ItemRequestDto itemRequestDto2 = requestService.addItemRequest(secondItemRequestCreateDto, requesterId);
+        ItemRequestDto itemRequestDto3 = requestService.addItemRequest(thirdItemRequestCreateDto, requesterId);
+        ItemRequestDto itemRequestDto4 = requestService.addItemRequest(fourthItemRequestCreateDto, requesterId);
 
         List<ItemRequestDto> serviceResult = requestService.getAllItemRequests(0, 3);
 
@@ -276,12 +245,9 @@ class RequestServiceImpTest {
         Long requesterId = testEntityManager.persistAndGetId(requester, Long.class);
         String description1 = "Description by first request";
 
-        ItemRequestCreateDto firstItemRequestCreateDto = ItemRequestCreateDto.builder()
-                .requesterId(requesterId)
-                .description(description1)
-                .build();
+        ItemRequestCreateDto firstItemRequestCreateDto = new ItemRequestCreateDto(description1);
 
-        ItemRequestDto itemRequestDto1 = requestService.addItemRequest(firstItemRequestCreateDto);
+        ItemRequestDto itemRequestDto1 = requestService.addItemRequest(firstItemRequestCreateDto, requesterId);
 
         Item item1 = Generators.ITEM_SUPPLIER.get();
         item1.setRequest(testEntityManager.find(ItemRequest.class, itemRequestDto1.getId()));
@@ -299,12 +265,12 @@ class RequestServiceImpTest {
         assertAll(
                 () -> assertEquals(itemRequestWithResponsesDto.getResponses().size(), 2),
                 () -> assertEquals(
-                        itemRequestWithResponsesDto.getResponses().get(0).getItemId(),
+                        itemRequestWithResponsesDto.getResponses().get(0).getId(),
                         idForItem1,
                         String.format("id для первого ответа должен быть %s", idForItem1)
                 ),
                 () -> assertEquals(
-                        itemRequestWithResponsesDto.getResponses().get(1).getItemId(),
+                        itemRequestWithResponsesDto.getResponses().get(1).getId(),
                         idForItem2,
                         String.format("id для второго ответа должен быть %s", idForItem2)
                 )
