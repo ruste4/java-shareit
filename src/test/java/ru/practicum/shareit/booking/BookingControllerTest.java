@@ -29,13 +29,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest {
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @Autowired
-    MockMvc mvc;
+    private MockMvc mvc;
 
     @Test
     void addBooking() throws Exception {
@@ -71,8 +71,6 @@ class BookingControllerTest {
                         .header("X-Sharer-User-Id", booker.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(booking.getId().intValue())))
-                .andExpect(jsonPath("$.start", is(booking.getStart().toString())))
-                .andExpect(jsonPath("$.end", is(booking.getEnd().toString())))
                 .andExpect(jsonPath("$.booker.id", is(booker.getId().intValue())))
                 .andExpect(jsonPath("$.booker.name", is(booker.getName())))
                 .andExpect(jsonPath("$.status", is(booking.getStatus().toString())));

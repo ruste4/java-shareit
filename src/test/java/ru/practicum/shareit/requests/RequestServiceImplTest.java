@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestEntityManager
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class RequestServiceImpTest {
+class RequestServiceImplTest {
     @Autowired
     private final RequestService requestService;
 
@@ -157,7 +157,7 @@ class RequestServiceImpTest {
                 () -> assertEquals(
                         serviceResult.get(2).getId(),
                         itemRequestDto1.getId(),
-                        String.format("Трейтий запрос должен быть %s", itemRequestDto1)
+                        String.format("Третий запрос должен быть %s", itemRequestDto1)
                 ),
                 () -> assertEquals(
                         serviceResult.get(2).getResponses().size(), 2, "Должно быть два ответа на запрос"
@@ -210,12 +210,12 @@ class RequestServiceImpTest {
                 () -> assertEquals(
                         serviceResult.get(1).getId(),
                         itemRequestDto3.getId(),
-                        String.format("Второй эелемент должен быть %s", itemRequestDto3)
+                        String.format("Второй элемент должен быть %s", itemRequestDto3)
                 ),
                 () -> assertEquals(
                         serviceResult.get(2).getId(),
                         itemRequestDto2.getId(),
-                        String.format("Трейтий элемент должен быть %s", itemRequestDto2)
+                        String.format("Третий элемент должен быть %s", itemRequestDto2)
                 )
         );
 

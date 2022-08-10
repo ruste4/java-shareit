@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class RequestServiceImp implements RequestService {
+public class RequestServiceImpl implements RequestService {
 
     private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
