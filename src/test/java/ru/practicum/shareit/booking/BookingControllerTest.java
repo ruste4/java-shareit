@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.boot.jaxb.hbm.spi.JaxbHbmCompositeKeyBasicAttributeType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.Generators;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 
-import static org.hamcrest.Matchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
@@ -26,8 +25,6 @@ import ru.practicum.shareit.user.User;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @WebMvcTest(controllers = BookingController.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -201,6 +198,38 @@ class BookingControllerTest {
     }
 
     @Test
-    void approveBooking() {
+    void approveBooking() throws Exception {
+        Booking booking = new Booking(
+                1L,
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                Generators.ITEM_SUPPLIER.get(),
+                Generators.USER_SUPPLIER.get(),
+                BookingStatus.APPROVED
+        );
+        booking.getItem().setId(1L);
+        booking.getItem().getOwner().setId(1L);
+        booking.getBooker().setId(1L);
+
+        Mockito
+                .when(bookingService.approveBooking(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyBoolean()))
+                .thenReturn(booking);
+
+        mvc.perform(patch("/bookings/1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .param("approved", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("1"))
+                .andExpect(jsonPath("$.item.id").value(booking.getItem().getId()))
+                .andExpect(jsonPath("$.item.name").value(booking.getItem().getName()))
+                .andExpect(jsonPath("$.item.description").value(booking.getItem().getDescription()))
+                .andExpect(jsonPath("$.item.owner.id").value(booking.getItem().getOwner().getId()))
+                .andExpect(jsonPath("$.item.owner.name").value(booking.getItem().getOwner().getName()))
+                .andExpect(jsonPath("$.booker.id").value(booking.getBooker().getId()))
+                .andExpect(jsonPath("$.booker.name").value(booking.getBooker().getName()))
+                .andExpect(jsonPath("$.status").value(booking.getStatus().toString()));
     }
 }
