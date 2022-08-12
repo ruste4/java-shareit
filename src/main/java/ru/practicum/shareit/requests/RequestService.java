@@ -36,8 +36,8 @@ public interface RequestService {
     /**
      * Получить список запросов, созданные другими пользователями
      *
-     * @param from          - индекса первого элемента (для пагинации)
-     * @param size          - количестов элементов отображения
+     * @param from          - индекс первого элемента (для пагинации)
+     * @param size          - количество элементов отображения
      */
     List<ItemRequestDto> getAllItemRequests(int from, int size);
 

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,13 +45,21 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithBookingDatesDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllByOwnerId(userId);
+    public List<ItemWithBookingDatesDto> getAll(
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "100") @Min(1) Integer size
+    ) {
+        return itemService.getAllByOwnerId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchByNameAndDescription(@RequestParam() String text) {
-        return itemService.searchByNameAndDescription(text).stream()
+    public List<ItemDto> searchByNameAndDescription(
+            @RequestParam() String text,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "100") @Min(1) Integer size
+    ) {
+        return itemService.searchByNameOrDescription(text, from, size).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }

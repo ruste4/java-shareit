@@ -215,7 +215,7 @@ class ItemServiceTest {
         testEntityManager.persist(item2);
         testEntityManager.flush();
 
-        assertEquals(itemService.getAllByOwnerId(ownerId).size(), 2);
+        assertEquals(itemService.getAllByOwnerId(ownerId, 0 , Integer.MAX_VALUE).size(), 2);
     }
 
     @Test
@@ -235,7 +235,7 @@ class ItemServiceTest {
         testEntityManager.persist(item3);
         testEntityManager.flush();
 
-        assertEquals(itemService.searchByNameAndDescription(searchTxt).size(), 2);
+        assertEquals(itemService.searchByNameOrDescription(searchTxt, 0, Integer.MAX_VALUE).size(), 2);
     }
 
     @Test
@@ -255,7 +255,7 @@ class ItemServiceTest {
         testEntityManager.persist(item3);
         testEntityManager.flush();
 
-        assertEquals(itemService.searchByNameAndDescription(searchTxt).size(), 0);
+        assertEquals(itemService.searchByNameOrDescription(searchTxt, 0, Integer.MAX_VALUE).size(), 0);
     }
 
     @Test

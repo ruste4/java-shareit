@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -178,12 +179,16 @@ public class ItemService {
      * Получить все предметы определенного владельца
      *
      * @param ownerId id владельца
+     * @param from    - индекс первого элемента (для пагинации)
+     * @param size    - количество элементов отображения
      * @return список предметов, выбранных по id владельца, с информацией и ближайших по времени бронях
      */
-    public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId) {
+    public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId, int from, int size) {
         log.info("Get all items by owner id:{}", ownerId);
 
-        return itemRepository.findByOwnerId(ownerId).stream()
+        PageRequest pageRequest = PageRequest.of(from, size);
+
+        return itemRepository.findByOwnerId(ownerId, pageRequest).stream()
                 .map(this::addToItemLastAndNextBooking)
                 .collect(Collectors.toList());
     }
@@ -195,17 +200,19 @@ public class ItemService {
      * @return список предметов, в которых нашлось совпадение по переданному тексту. Если ничего не нашлось, вернет
      * пустой список
      */
-    public Set<Item> searchByNameAndDescription(String txt) {
-        log.info("Search items by name and description with text \"{}\"", txt);
+    public List<Item> searchByNameOrDescription(String txt, int from, int size) {
+        log.info("Search items by name or description with text \"{}\"", txt);
 
         if (txt.isBlank()) {
-            return Set.of();
+            return List.of();
         }
 
-        return itemRepository.findByNameContainingIgnoreCase(txt)
-                .and(itemRepository.findByDescriptionContainingIgnoreCase(txt))
+        PageRequest pageRequest = PageRequest.of(from, size);
+
+        return itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(txt, txt, pageRequest)
+                .stream()
                 .filter(Item::isAvailable)
-                .toSet();
+                .collect(Collectors.toList());
     }
 
     /**
