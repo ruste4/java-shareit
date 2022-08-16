@@ -106,7 +106,7 @@ class BookingControllerTest {
         );
 
         Mockito
-                .when(bookingService.getAllBookingsCurrentUser(3, "ALL"))
+                .when(bookingService.getAllBookingsCurrentUser(3, "ALL", 0, Integer.MAX_VALUE))
                 .thenReturn(List.of(booking1, booking2));
 
         mvc.perform(get("/bookings")
@@ -144,7 +144,9 @@ class BookingControllerTest {
         );
 
         Mockito
-                .when(bookingService.getAllBookingsForItemsOwner(Mockito.anyLong(), Mockito.anyString()))
+                .when(bookingService.getAllBookingsForItemsOwner(
+                        Mockito.anyLong(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())
+                )
                 .thenReturn(List.of(booking1, booking2));
 
         mvc.perform(get("/bookings/owner")
