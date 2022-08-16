@@ -215,7 +215,7 @@ class ItemServiceTest {
         testEntityManager.persist(item2);
         testEntityManager.flush();
 
-        assertEquals(itemService.getAllByOwnerId(ownerId, 0 , Integer.MAX_VALUE).size(), 2);
+        assertEquals(itemService.getAllByOwnerId(ownerId, 0, Integer.MAX_VALUE).size(), 2);
     }
 
     @Test
