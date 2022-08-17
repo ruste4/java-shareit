@@ -1,12 +1,8 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 
-@Component
-@RequiredArgsConstructor
 public class BookingMapper {
     public static BookingDto toBookingDto(Booking booking) {
 

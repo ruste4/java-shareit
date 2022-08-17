@@ -11,7 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.Generators;
 import ru.practicum.shareit.item.dto.CommentCreateDto;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
@@ -42,11 +44,12 @@ class ItemServiceTest {
     @Test
     public void createItem() {
         Item item = Generators.ITEM_SUPPLIER.get();
+        ItemCreateDto itemCreateDto = ItemMapper.toItemCreateDto(item);
         Long ownerId = testEntityManager.persistAndGetId(item.getOwner(), Long.class);
         testEntityManager.flush();
 
-        Item createdItem = itemService.addItem(ownerId, item);
-        Item foundItem = testEntityManager.find(Item.class, item.getId());
+        Item createdItem = itemService.addItem(ownerId, itemCreateDto);
+        Item foundItem = testEntityManager.find(Item.class, createdItem.getId());
 
         assertEquals(createdItem, foundItem);
     }
@@ -54,28 +57,31 @@ class ItemServiceTest {
     @Test
     public void itemCreateFailedByWrongUserId() {
         Item item = Generators.ITEM_SUPPLIER.get();
+        ItemCreateDto itemCreateDto = ItemMapper.toItemCreateDto(item);
 
-        assertThrows(UserNotFoundException.class, () -> itemService.addItem(10, item));
+        assertThrows(UserNotFoundException.class, () -> itemService.addItem(10, itemCreateDto));
     }
 
     @Test
     public void itemCreateWithEmptyName() {
         Item item = Generators.ITEM_SUPPLIER.get();
-        item.setName("");
+        ItemCreateDto itemCreateDto = ItemMapper.toItemCreateDto(item);
+        itemCreateDto.setName("");
         Long ownerid = testEntityManager.persistAndGetId(item.getOwner(), Long.class);
         testEntityManager.flush();
 
-        assertThrows(ConstraintViolationException.class, () -> itemService.addItem(ownerid, item));
+        assertThrows(ConstraintViolationException.class, () -> itemService.addItem(ownerid, itemCreateDto));
     }
 
     @Test
     public void itemCreateWithEmptyDescription() {
         Item item = Generators.ITEM_SUPPLIER.get();
-        item.setDescription("");
-        Long ownerid = testEntityManager.persistAndGetId(item.getOwner(), Long.class);
+        ItemCreateDto itemCreateDto = ItemMapper.toItemCreateDto(item);
+        itemCreateDto.setDescription("");
+        Long ownerId = testEntityManager.persistAndGetId(item.getOwner(), Long.class);
         testEntityManager.flush();
 
-        assertThrows(ConstraintViolationException.class, () -> itemService.addItem(ownerid, item));
+        assertThrows(ConstraintViolationException.class, () -> itemService.addItem(ownerId, itemCreateDto));
     }
 
     @Test
@@ -209,7 +215,7 @@ class ItemServiceTest {
         testEntityManager.persist(item2);
         testEntityManager.flush();
 
-        assertEquals(itemService.getAllByOwnerId(ownerId).size(), 2);
+        assertEquals(itemService.getAllByOwnerId(ownerId, 0, Integer.MAX_VALUE).size(), 2);
     }
 
     @Test
@@ -229,7 +235,7 @@ class ItemServiceTest {
         testEntityManager.persist(item3);
         testEntityManager.flush();
 
-        assertEquals(itemService.searchByNameAndDescription(searchTxt).size(), 2);
+        assertEquals(itemService.searchByNameOrDescription(searchTxt, 0, Integer.MAX_VALUE).size(), 2);
     }
 
     @Test
@@ -249,7 +255,7 @@ class ItemServiceTest {
         testEntityManager.persist(item3);
         testEntityManager.flush();
 
-        assertEquals(itemService.searchByNameAndDescription(searchTxt).size(), 0);
+        assertEquals(itemService.searchByNameOrDescription(searchTxt, 0, Integer.MAX_VALUE).size(), 0);
     }
 
     @Test

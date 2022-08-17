@@ -59,7 +59,7 @@
 		<dependency>
 			<groupId>com.puppycrawl.tools</groupId>
 			<artifactId>checkstyle</artifactId>
-			<version>10.3</version>
+			<version>10.3.1</version>
 		</dependency>
 
 		<dependency>
@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>com.github.spotbugs</groupId>
 			<artifactId>spotbugs-maven-plugin</artifactId>
-			<version>4.7.1.0</version>
+			<version>4.7.1.1</version>
 			<type>maven-plugin</type>
 		</dependency>
 
@@ -87,13 +87,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -207,17 +200,17 @@
 											<limit>
 												<counter>BRANCH</counter>
 												<value>COVEREDRATIO</value>
-												<minimum>0.9</minimum>
+												<minimum>0.6</minimum>
 											</limit>
 											<limit>
 												<counter>COMPLEXITY</counter>
 												<value>COVEREDRATIO</value>
-												<minimum>0.9</minimum>
+												<minimum>0.6</minimum>
 											</limit>
 											<limit>
 												<counter>METHOD</counter>
 												<value>COVEREDRATIO</value>
-												<minimum>0.9</minimum>
+												<minimum>0.7</minimum>
 											</limit>
 											<limit>
 												<counter>CLASS</counter>
@@ -230,8 +223,8 @@
 							</configuration>
 						</execution>
 						<execution>
-							<id>jacoco-site</id>
-							<phase>install</phase>
+							<id>jacoco-report</id>
+							<phase>test</phase>
 							<goals>
 								<goal>report</goal>
 							</goals>

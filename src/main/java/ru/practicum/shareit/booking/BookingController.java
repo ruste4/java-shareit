@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 public class BookingController {
 
     private final BookingService bookingService;
-    private final BookingMapper bookingMapper;
 
     @PostMapping
     public BookingDto addBooking(
@@ -31,9 +31,11 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllBookingsCurrentUser(
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") String state,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "100") @Min(1) Integer size
     ) {
-        return bookingService.getAllBookingsCurrentUser(userId, state).stream()
+        return bookingService.getAllBookingsCurrentUser(userId, state, from, size).stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -41,9 +43,11 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingsForItemsOwner(
             @RequestHeader("X-Sharer-User-Id") long itemOwnerId,
-            @RequestParam(defaultValue = "All") String state
+            @RequestParam(defaultValue = "All") String state,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "100") @Min(1) Integer size
     ) {
-        return bookingService.getAllBookingsForItemsOwner(itemOwnerId, state).stream()
+        return bookingService.getAllBookingsForItemsOwner(itemOwnerId, state, from, size).stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }

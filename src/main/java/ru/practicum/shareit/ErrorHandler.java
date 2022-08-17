@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.exceptions.ItemIsNotAvailableException;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
+import ru.practicum.shareit.requests.exceptions.ItemRequestNotFound;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.util.HashMap;
@@ -42,7 +43,8 @@ public class ErrorHandler {
             ItemNotFoundException.class,
             BookingNotFound.class,
             BookingAccessBlocked.class,
-            BookerIsOwnerItemException.class
+            BookerIsOwnerItemException.class,
+            ItemRequestNotFound.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundExceptionHandler(RuntimeException e) {

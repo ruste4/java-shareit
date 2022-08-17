@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -11,6 +12,8 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.exceptions.ItemNotFoundException;
 import ru.practicum.shareit.item.exceptions.UserIsNotBookedItemException;
 import ru.practicum.shareit.item.exceptions.UserNotOwnerItemException;
+import ru.practicum.shareit.requests.ItemRequest;
+import ru.practicum.shareit.requests.RequestService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.exceptions.UserNotFoundException;
@@ -28,6 +31,8 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
 
+    private final RequestService requestService;
+
     private final CommentRepository commentRepository;
 
     private final BookingRepository bookingRepository;
@@ -36,13 +41,19 @@ public class ItemService {
      * Добавить предмет
      *
      * @param ownerId id владельца предмета
-     * @param item    предмет
      * @return предмет с сгенерированным для него номером id. Генерация id происходит в хранилище предметов
      * @throws UserNotFoundException если пользователь из поля owner не найден в системе
      */
-    public Item addItem(long ownerId, Item item) {
+    public Item addItem(long ownerId, ItemCreateDto itemCreateDto) {
+        Item item = ItemMapper.toItem(itemCreateDto);
         User owner = checkAndGetItemOwner(ownerId, item.getName());
         item.setOwner(owner);
+
+        if (itemCreateDto.getRequestId() != null) {
+            ItemRequest itemRequest = requestService.getItemRequestById(itemCreateDto.getRequestId());
+            item.setRequest(itemRequest);
+        }
+
         log.info("Add {}", item);
 
         return itemRepository.save(item);
@@ -168,12 +179,16 @@ public class ItemService {
      * Получить все предметы определенного владельца
      *
      * @param ownerId id владельца
+     * @param from    - индекс первого элемента (для пагинации)
+     * @param size    - количество элементов отображения
      * @return список предметов, выбранных по id владельца, с информацией и ближайших по времени бронях
      */
-    public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId) {
+    public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId, int from, int size) {
         log.info("Get all items by owner id:{}", ownerId);
 
-        return itemRepository.findByOwnerId(ownerId).stream()
+        PageRequest pageRequest = PageRequest.of(from, size);
+
+        return itemRepository.findByOwnerId(ownerId, pageRequest).stream()
                 .map(this::addToItemLastAndNextBooking)
                 .collect(Collectors.toList());
     }
@@ -185,17 +200,19 @@ public class ItemService {
      * @return список предметов, в которых нашлось совпадение по переданному тексту. Если ничего не нашлось, вернет
      * пустой список
      */
-    public Set<Item> searchByNameAndDescription(String txt) {
-        log.info("Search items by name and description with text \"{}\"", txt);
+    public List<Item> searchByNameOrDescription(String txt, int from, int size) {
+        log.info("Search items by name or description with text \"{}\"", txt);
 
         if (txt.isBlank()) {
-            return Set.of();
+            return List.of();
         }
 
-        return itemRepository.findByNameContainingIgnoreCase(txt)
-                .and(itemRepository.findByDescriptionContainingIgnoreCase(txt))
+        PageRequest pageRequest = PageRequest.of(from, size);
+
+        return itemRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(txt, txt, pageRequest)
+                .stream()
                 .filter(Item::isAvailable)
-                .toSet();
+                .collect(Collectors.toList());
     }
 
     /**
@@ -281,5 +298,8 @@ public class ItemService {
         return commentRepository.findAllCommentByItem(item);
     }
 
+    public List<Item> getAllItemByRequestId(long requestId) {
+        return itemRepository.findAllByRequestId(requestId);
+    }
 
 }

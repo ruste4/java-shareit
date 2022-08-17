@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
@@ -17,8 +19,9 @@ import ru.practicum.shareit.user.exceptions.UserNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+
+import static ru.practicum.shareit.booking.BookingSpecs.*;
+import static ru.practicum.shareit.booking.BookingStatus.*;
 
 @Slf4j
 @Service
@@ -144,12 +147,12 @@ public class BookingService {
 
         userIsOwnerBooking.check(booking, user);
 
-        if (booking.getStatus().equals(BookingStatus.APPROVED) && isApproved) {
+        if (booking.getStatus().equals(APPROVED) && isApproved) {
             throw new BookingAlreadyApprovedException(String.format("Booking with id:%s already approved.", bookingId));
         }
 
         if (isApproved) {
-            booking.setStatus(BookingStatus.APPROVED);
+            booking.setStatus(APPROVED);
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
@@ -165,36 +168,55 @@ public class BookingService {
         }
     };
 
-    public List<Booking> getAllBookingsCurrentUser(long userId, String status) {
+    public List<Booking> getAllBookingsCurrentUser(long userId, String status, int from, int size) {
         User booker = userService.getUserById(userId);
         List<Booking> bookings = getAllByBooker(booker);
         BookingStatus bookingStatus = BookingStatus.findByName(status);
+        LocalDateTime now = LocalDateTime.now();
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by("id").descending());
 
         switch (bookingStatus) {
             case FUTURE:
-                return bookings.stream().filter(filterForFutureBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                        BookingSpecs
+                                .hasBooker(booker)
+                                .and(hasBookingStatus(APPROVED).or(hasBookingStatus(WAITING)))
+                                .and(BookingSpecs.isBookingStartGreaterThan(now)),
+                        pageRequest).toList();
+
             case CURRENT:
-                return bookings.stream().filter(filterForCurrentBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasBooker(booker)
+                                        .and(hasBookingStatus(APPROVED).or(hasBookingStatus(REJECTED)))
+                                        .and(isBookingStartLessThan(now).and(isBookingEndGreaterThan(now))),
+                                pageRequest)
+                        .toList();
             case PAST:
-                return bookings.stream().filter(filterForPastBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasBooker(booker)
+                                        .and(hasBookingStatus(APPROVED))
+                                        .and(isBookingEndLessThan(now)),
+                                pageRequest)
+                        .toList();
             case REJECTED:
-                return bookings.stream().filter(filterForRejectedBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasBooker(booker)
+                                        .and(hasBookingStatus(REJECTED)),
+                                pageRequest)
+                        .toList();
             case WAITING:
-                return bookings.stream().filter(filterFroWaitingBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasBooker(booker)
+                                        .and(hasBookingStatus(WAITING)),
+                                pageRequest)
+                        .toList();
         }
 
         return bookings;
-    }
-
-    /**
-     * Получить все брони по арендатору и статусу
-     *
-     * @param booker аредатор
-     * @param bookingStatus   статус брони
-     * @return список броней выбранных по bookerId и status
-     */
-    public List<Booking> getAllByBookerWithStatus(User booker, BookingStatus bookingStatus) {
-        return bookingRepository.findAllByBookerAndStatusOrderByIdDesc(booker, bookingStatus);
     }
 
     /**
@@ -207,46 +229,56 @@ public class BookingService {
         return bookingRepository.findAllByBookerOrderByIdDesc(booker);
     }
 
-    public List<Booking> getAllBookingsForItemsOwner(long itemOwnerId, String status) {
-        List<Booking> bookings = getAllByItemOwnerId(itemOwnerId);
+    public List<Booking> getAllBookingsForItemsOwner(long itemOwnerId, String status, int from, int size) {
+        User itemOwner = userService.getUserById(itemOwnerId);
         BookingStatus bookingStatus = BookingStatus.findByName(status);
+        LocalDateTime now = LocalDateTime.now();
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by("id").descending());
 
         switch (bookingStatus) {
             case FUTURE:
-                return bookings.stream().filter(filterForFutureBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasOwnerBookedItem(itemOwner)
+                                        .and(hasBookingStatus(APPROVED).or(hasBookingStatus(WAITING)))
+                                        .and(BookingSpecs.isBookingStartGreaterThan(now)),
+                                pageRequest)
+                        .toList();
+
             case CURRENT:
-                return bookings.stream().filter(filterForCurrentBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasOwnerBookedItem(itemOwner)
+                                        .and(hasBookingStatus(APPROVED).or(hasBookingStatus(REJECTED)))
+                                        .and(isBookingStartLessThan(now).and(isBookingEndGreaterThan(now))),
+                                pageRequest)
+                        .toList();
             case PAST:
-                return bookings.stream().filter(filterForPastBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasOwnerBookedItem(itemOwner)
+                                        .and(hasBookingStatus(APPROVED))
+                                        .and(isBookingEndLessThan(now)),
+                                pageRequest)
+                        .toList();
             case REJECTED:
-                return bookings.stream().filter(filterForRejectedBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasOwnerBookedItem(itemOwner)
+                                        .and(hasBookingStatus(REJECTED)),
+                                pageRequest)
+                        .toList();
             case WAITING:
-                return bookings.stream().filter(filterFroWaitingBooking).collect(Collectors.toList());
+                return bookingRepository.findAll(
+                                BookingSpecs
+                                        .hasOwnerBookedItem(itemOwner)
+                                        .and(hasBookingStatus(WAITING)),
+                                pageRequest)
+                        .toList();
         }
 
-        return bookings;
+        return getAllByItemOwnerId(itemOwnerId);
     }
-
-    private final Predicate<Booking> filterFroWaitingBooking = b -> b.getStatus().equals(BookingStatus.WAITING);
-    private final Predicate<Booking> filterForRejectedBooking = b -> b.getStatus().equals(BookingStatus.REJECTED);
-    private final Predicate<Booking> filterForPastBooking = b -> {
-        LocalDateTime now = LocalDateTime.now();
-
-        return b.getStatus().equals(BookingStatus.APPROVED) && b.getEnd().isBefore(now);
-    };
-    private final Predicate<Booking> filterForCurrentBooking = b -> {
-        LocalDateTime now = LocalDateTime.now();
-
-        return (b.getStatus().equals(BookingStatus.APPROVED) || b.getStatus().equals(BookingStatus.REJECTED))
-                && b.getStart().isBefore(now) && b.getEnd().isAfter(now);
-    };
-
-    private final Predicate<Booking> filterForFutureBooking = b -> {
-        LocalDateTime now = LocalDateTime.now();
-
-        return (b.getStatus().equals(BookingStatus.APPROVED) || b.getStatus().equals(BookingStatus.WAITING))
-                && b.getStart().isAfter(now);
-    };
 
     /**
      * Получить все брони по арендодателю

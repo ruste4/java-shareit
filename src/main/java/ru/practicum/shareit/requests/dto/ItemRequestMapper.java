@@ -16,4 +16,12 @@ public class ItemRequestMapper {
                 .created(itemRequest.getCreated())
                 .build();
     }
+
+    public static ItemRequestWithResponsesDto toItemRequestWithResponsesDto(ItemRequest itemRequest) {
+        return ItemRequestWithResponsesDto.builder()
+                .id(itemRequest.getId())
+                .description(itemRequest.getDescription())
+                .created(itemRequest.getCreated())
+                .build();
+    }
 }
