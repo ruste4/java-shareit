@@ -1,10 +1,10 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.ToString;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
-@ToString
+@Data
 public class RequestCreateDto {
     @NotBlank
     private String description;

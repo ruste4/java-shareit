@@ -1,8 +1,8 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.ToString;
+import lombok.Data;
 
-@ToString
+@Data
 public class ItemDto {
     private Long id;
 
