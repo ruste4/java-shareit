@@ -56,7 +56,7 @@ public class BookingController {
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllBookingsForItemsOwner(
             @RequestHeader("X-Sharer-User-Id") long itemOwnerId,
-            @RequestParam(defaultValue = "All") String stateParam,
+            @RequestParam(name = "state", defaultValue = "all") String stateParam,
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @Positive @RequestParam(defaultValue = "100") Integer size
     ) {
@@ -73,7 +73,7 @@ public class BookingController {
     public ResponseEntity<Object> approveBooking(
             @PathVariable long id,
             @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam boolean approved
+            @RequestParam Boolean approved
     ) {
         log.info("User with id={} request approve booking with bookingId={}, approved={}", userId, id, approved);
         return bookingClient.approveBooking(id, userId, approved);

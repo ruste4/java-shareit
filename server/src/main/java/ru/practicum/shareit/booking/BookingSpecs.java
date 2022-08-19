@@ -15,6 +15,10 @@ public class BookingSpecs {
         return (root, query, builder) -> builder.equal(root.get(Booking_.status), status);
     }
 
+    public static Specification<Booking> notHasBookingStatus(BookingStatus status) {
+        return (root, query, builder) -> builder.notEqual(root.get(Booking_.status), status);
+    }
+
     public static Specification<Booking> hasOwnerBookedItem(User itemOwner) {
         return (root, query, builder) -> {
             Join<Booking, Item> items = root.join(Booking_.item, JoinType.LEFT);

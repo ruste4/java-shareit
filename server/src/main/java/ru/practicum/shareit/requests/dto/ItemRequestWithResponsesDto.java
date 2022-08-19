@@ -15,7 +15,7 @@ public class ItemRequestWithResponsesDto {
 
     private LocalDateTime created;
 
-    private List<Item> responses;
+    private List<Item> items;
 
     @Data
     public static class Item {
@@ -25,10 +25,19 @@ public class ItemRequestWithResponsesDto {
 
         private Long ownerId;
 
+        private String description;
+
+        private Boolean available;
+
+        private Long requestId;
+
         public Item(ru.practicum.shareit.item.Item item) {
             this.id = item.getId();
             this.name = item.getName();
             this.ownerId = item.getOwner().getId();
+            this.description = item.getDescription();
+            this.available = item.isAvailable();
+            this.requestId = item.getRequest().getId();
         }
     }
 }

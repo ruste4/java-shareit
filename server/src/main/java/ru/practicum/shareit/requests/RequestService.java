@@ -26,7 +26,7 @@ public interface RequestService {
     /**
      * Получить запрос по id вместе с ответами
      */
-    ItemRequestWithResponsesDto getItemRequestWithResponsesById(long id);
+    ItemRequestWithResponsesDto getItemRequestWithResponsesById(long id, long userId);
 
     /**
      * Получить запрос по id
@@ -36,10 +36,11 @@ public interface RequestService {
     /**
      * Получить список запросов, созданные другими пользователями
      *
-     * @param from          - индекс первого элемента (для пагинации)
-     * @param size          - количество элементов отображения
+     * @param from   - индекс первого элемента (для пагинации)
+     * @param size   - количество элементов отображения
+     * @param userId
      */
-    List<ItemRequestDto> getAllItemRequests(int from, int size);
+    List<ItemRequestWithResponsesDto> getAllItemRequests(int from, int size, long userId);
 
 
 }

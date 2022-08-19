@@ -39,16 +39,20 @@ public class RequestController {
 
     @GetMapping("/all")
     public ResponseEntity<Object> getAllItemRequests(
+            @RequestHeader("X-Sharer-User-Id") long userId,
             @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
             @Positive @RequestParam(defaultValue = "10") Integer size
     ) {
-        log.info("Get all requests with from={}, size={}", from, size);
-        return requestClient.getAllItemRequests(from, size);
+        log.info("Get all requests with userId={}, from={}, size={}", userId, from, size);
+        return requestClient.getAllItemRequests(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<Object> getItemRequestWithResponsesById(@PathVariable long requestId) {
+    public ResponseEntity<Object> getItemRequestWithResponsesById(
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @PathVariable long requestId
+    ) {
         log.info("Get request with id={}", requestId);
-        return requestClient.getRequestById(requestId);
+        return requestClient.getRequestById(userId, requestId);
     }
 }

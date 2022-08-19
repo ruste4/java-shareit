@@ -60,9 +60,9 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ItemRequestWithResponsesDto getItemRequestWithResponsesById(long id) {
+    public ItemRequestWithResponsesDto getItemRequestWithResponsesById(long id, long userId) {
         ItemRequest itemRequest = getItemRequestById(id);
-
+        userService.getUserById(userId);
         return addResponsesForItemRequest(itemRequest);
     }
 
@@ -76,7 +76,7 @@ public class RequestServiceImpl implements RequestService {
                 .map(ItemRequestWithResponsesDto.Item::new)
                 .collect(Collectors.toList());
 
-        itemRequestWithResponses.setResponses(itemsForItemRequestWithResponsesDto);
+        itemRequestWithResponses.setItems(itemsForItemRequestWithResponsesDto);
 
         return itemRequestWithResponses;
     }
@@ -89,9 +89,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getAllItemRequests(int from, int size) {
-        return itemRequestRepository.findAll(PageRequest.of(from, size, Sort.by("created").descending()))
-                .map(ItemRequestMapper::toItemRequestDto).toList();
+    public List<ItemRequestWithResponsesDto> getAllItemRequests(int from, int size, long userId) {
+        User user = userService.getUserById(userId);
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by("created").descending());
+
+        return itemRequestRepository.findAllByRequesterNotOrderByCreatedDesc(user, pageRequest)
+                .map(this::addResponsesForItemRequest).toList();
 
     }
 

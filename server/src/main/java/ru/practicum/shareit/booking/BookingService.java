@@ -174,7 +174,9 @@ public class BookingService {
         BookingStatus bookingStatus = BookingStatus.findByName(status);
         LocalDateTime now = LocalDateTime.now();
         PageRequest pageRequest = PageRequest.of(from, size, Sort.by("id").descending());
-
+        if (from == 2000) { //todo убери
+            System.out.println(1);
+        }
         switch (bookingStatus) {
             case FUTURE:
                 return bookingRepository.findAll(
@@ -216,7 +218,7 @@ public class BookingService {
                         .toList();
         }
 
-        return bookings;
+        return bookingRepository.findAll(pageRequest).toList();
     }
 
     /**
@@ -277,7 +279,10 @@ public class BookingService {
                         .toList();
         }
 
-        return getAllByItemOwnerId(itemOwnerId);
+        return bookingRepository.findAll(
+                BookingSpecs.hasOwnerBookedItem(itemOwner),
+                pageRequest
+        ).toList();
     }
 
     /**

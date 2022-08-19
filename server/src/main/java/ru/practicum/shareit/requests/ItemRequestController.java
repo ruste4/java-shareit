@@ -32,15 +32,19 @@ public class ItemRequestController {
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> getAllItemRequests(
+    public List<ItemRequestWithResponsesDto> getAllItemRequests(
             @RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "1") Integer size
+            @RequestParam(defaultValue = "1") Integer size,
+            @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
-        return requestService.getAllItemRequests(from, size);
+        return requestService.getAllItemRequests(from, size, userId);
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestWithResponsesDto getItemRequestWithResponsesById(@PathVariable long requestId) {
-        return requestService.getItemRequestWithResponsesById(requestId);
+    public ItemRequestWithResponsesDto getItemRequestWithResponsesById(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable long requestId
+    ) {
+        return requestService.getItemRequestWithResponsesById(requestId, userId);
     }
 }

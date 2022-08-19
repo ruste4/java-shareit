@@ -30,15 +30,15 @@ public class RequestClient extends BaseClient {
         return get("", userId);
     }
 
-    public ResponseEntity<Object> getAllItemRequests(Integer from, Integer size) {
+    public ResponseEntity<Object> getAllItemRequests(Long userId, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size
         );
-        return get("/all", null, parameters);
+        return get("/all", userId, parameters);
     }
 
-    public ResponseEntity<Object> getRequestById(long requestId) {
-        return get("/" + requestId);
+    public ResponseEntity<Object> getRequestById(long userId, long requestId) {
+        return get("/" + requestId, userId);
     }
 }
