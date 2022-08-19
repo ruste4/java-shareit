@@ -15,7 +15,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
 @Controller
-@RequestMapping(path = "/bookings")
+@RequestMapping(path = "/items")
 @RequiredArgsConstructor
 @Slf4j
 @Validated

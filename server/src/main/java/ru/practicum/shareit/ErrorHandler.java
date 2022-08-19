@@ -25,15 +25,7 @@ public class ErrorHandler {
     @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse constraintViolationExceptionHandle(ConstraintViolationException e) {
-        if (e.getConstraintName().equals("uq_user_email")) {
-            String message = "Email already exist";
-            log.warn(message);
-
-            return new ErrorResponse(message);
-        }
-
         log.warn(e.getMessage());
-
         return new ErrorResponse(e.getMessage());
     }
 
