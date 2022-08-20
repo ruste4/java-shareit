@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -157,7 +158,7 @@ public class ItemService {
     private ItemWithBookingDatesDto addToItemLastAndNextBooking(Item item) {
         LocalDateTime now = LocalDateTime.now();
 
-        List<Booking> bookings = bookingRepository.findAllBookingByItemId(item.getId());
+        List<Booking> bookings = bookingRepository.findAllBookingByItem(item);
 
         Optional<Booking> lastBooking = bookings.stream()
                 .filter(b -> b.getEnd().isBefore(now))
@@ -186,7 +187,7 @@ public class ItemService {
     public List<ItemWithBookingDatesDto> getAllByOwnerId(long ownerId, int from, int size) {
         log.info("Get all items by owner id:{}", ownerId);
 
-        PageRequest pageRequest = PageRequest.of(from, size);
+        PageRequest pageRequest = PageRequest.of(from, size, Sort.by("id"));
 
         return itemRepository.findByOwnerId(ownerId, pageRequest).stream()
                 .map(this::addToItemLastAndNextBooking)
