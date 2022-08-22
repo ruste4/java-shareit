@@ -170,13 +170,10 @@ public class BookingService {
 
     public List<Booking> getAllBookingsCurrentUser(long userId, String status, int from, int size) {
         User booker = userService.getUserById(userId);
-        List<Booking> bookings = getAllByBooker(booker);
         BookingStatus bookingStatus = BookingStatus.findByName(status);
         LocalDateTime now = LocalDateTime.now();
         PageRequest pageRequest = PageRequest.of(from, size, Sort.by("id").descending());
-        if (from == 2000) { //todo убери
-            System.out.println(1);
-        }
+
         switch (bookingStatus) {
             case FUTURE:
                 return bookingRepository.findAll(
